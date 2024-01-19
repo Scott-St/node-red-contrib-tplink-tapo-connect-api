@@ -1,0 +1,49 @@
+{
+    "resources": {
+        "paletteLabel": "actions",
+        "labels": {
+            "name": "Name",
+            "password": "Password",
+            "email": "Email",
+            "deviceIp": "Tapo ipaddress",
+            "deviceAlias": "Tapo alias",
+            "deviceIpRange": "Tapo find ip range",
+            "targetDeviceSettings": "Tapo device settings",
+            "searchMode":{
+                "title": "Seach mode",
+                "ip":"ip",
+                "alias":"alias"
+            },
+            "version":{
+                "title": "Protocol ",
+                "v1": "V1 - Passthrough (old)",
+                "v2": "V2 - Klap (new)",
+                "auto": "Auto - Guess version",
+                "description": "select protocol version and button command function"
+            },
+            "command":{
+                "title": "Command ",
+                "status": "STATUS (Get info)",
+                "power": "POWER (Turn on/off)",
+                "on": "ON (Turn on)",
+                "off": "OFF (Turn off)",
+                "toggle": "TOGGLE (Switch)",
+                "color": "COLOR (Set color)",
+                "brightness": "BRIGHT (Set brightness)",
+                "description": "select button function \"status, ON or OFF\""
+            }
+        },
+        "descriptions": {
+            "targetDeviceSettings": "select search mode \"Tapo ip or Tapo alias\""
+        },
+        "message": {
+            "ready": "Ready.",
+            "complete_auto": "Connected (AUTO)",
+            "complete_pass": "Connected (PASSTHROUGH)",
+            "complete_klap": "Connected (KLAP)",
+            "configError": "Config error.",
+            "error": "Error.",
+            "communicationError": "Communication error."
+        }
+    }
+}
