@@ -1,101 +1,74 @@
 # node-red-contrib-tplink-tapo-connect-api
 
-Unofficial node-RED node for connecting to TP-Link Tapo devices. Currently limited to the:
+Unofficial node-RED node for connecting to TP-Link Tapo devices with new interface (KLAP and PASSTHROUGH). Currently limited to the:
 - P100, P105, P110, P115 smart plugs
 - L510E, L530E smart bulbs
 - L900-10 smart strip
 
 ![node](./figs/sample00.png)
 
-## nodes
+## node commands
+
+- power
+
+    ![node-command](figs/node-power.png)
+
+    This node command provides the ability to power (on / off) the device by input `"msg.payload"` (boolean)
 
 - toggle
 
     ![node-command](figs/node-toggle.png)
 
-    This node module provides the ability to toggle (on / off) the power of tapo smart plugs.
+    This node command provides the ability to toggle (on / off) the power of tapo smart plugs.
 
 - turn-on
 
     ![node-command](figs/node-turn-on.png)
 
-    This node module provides the ability to power on tapo smart plugs.
+    This node command provides the ability to power on tapo smart plugs.
 
 - turn-off
 
     ![node-command](figs/node-turn-off.png)
 
-    This node module provides the ability to power off tapo smart plugs.
+    This node command provides the ability to power off tapo smart plugs.
 
 - brightness
 
     ![node-brightness](figs/node-brightness.png)
 
-    This node module provides the ability to set the brightness of tapo smart bulbs.
+    This node command provides the ability to set the brightness of tapo smart bulbs.
 
 - colour
 
     ![node-command](figs/node-colour.png)
 
-    This node module provides the ability to set the color of tapo smart bulbs.
-
-- command
-
-    ![node-command](figs/node-command.png)
-
-    This node module provides several features by input `"msg.payload.command"`.
-
-    1. power
-
-        tapo device power on/off
-
-        `msg.payload.option`
-
-        ```cmd
-        0: tapo device power off
-        1: tapo device power on
-        ```
-
-    2. toggle
-
-        tapo device power on/off(toggle)
-
-    3. status
-
-        get tapo device info
+    This node command provides the ability to set the color of tapo smart bulbs.
 
 - status
 
     ![node-command](figs/node-status.png)
 
-    This node module provides the ability to get the device infomation of tapo smart plugs.
+    This node command provides the ability to get the device infomation of tapo smart plugs.
 
     Models that can monitor energy acquire energy information.
 
     Get the device information from `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"`.
 
-- tplink_tapo_connect_api(`deprecated`)
+You can always override the node command configuration by means of `"msg.config.command"` that takes an string with one of the previous commands.
 
-    ![node-command](figs/tplink_tapo_connect_api.png)
+You can also override the version of device protocol by means of `"msg.config.version"` that takes a number (1 - PASSTHROUGH, 2 - KLAP, 3 - AUTO).
 
-    This "node module: tplink_tapo_connect_api" has been left for compatibility, this module may be deleted without notice.
+You can also get a verbose output of errors by means of `"msg.config.verbose"` that takes a boolean. When verbose is selected a 'track' object is included.
 
 ## Pre-requisites
 
-The node-red-contrib-tplink-tapo-connect-api requires `Node-RED 1.00` to be installed.
-
-## Quick Start
-
-To pull from docker hub:
-
-```cmd
-docker pull sanlike0911/node-red-tplink-tapo-connect-api:latest
-```
+The node-red-contrib-tapo-new-api requires `Node-RED 1.00` to be installed.
 
 ## Install
 
 ```cmd
-npm install node-red-contrib-tplink-tapo-connect-api
+npm install node-red-contrib-tapo-new-api
 ```
 
 ## Usage
@@ -115,6 +88,14 @@ npm install node-red-contrib-tplink-tapo-connect-api
   - Password
 
     Set the password registered with Tp Link.
+
+  - Protocol
+
+    Set the protocol to be used in the communication with Tapo device.
+
+  - Command
+
+    Set the kind of command the node will take as initial configuration.
 
   - Search mode
 
@@ -145,58 +126,70 @@ npm install node-red-contrib-tplink-tapo-connect-api
 `msg.payload`
 
 ```typescript
-type searchModeTypes = "ip" | "alias";
-type commandTypes = "" | "power" | "toggle" | "status";
+type search_mode_type = "ip" | "alias";
+type command_type = "status" | "power" | "on" | "off" | "toggle" | "color";
 
-type payload {
+type config {
     email: string;
     password: string;
     deviceIp: string;
     deviceAlias: string;
     deviceIpRange: string;
-    searchMode : searchModeTypes;
-    command: commandTypes;          /* "node-command" only */
-    option: {                       /* "node-command" only */
-        power?: number;
-    };
-    colour: string;                 /* "node-colour" only */
-    brightness: numbar;             /* "node-brightness" only */
+    searchMode : search_mode_type;
+    command?: command_type; /* Default: "status" */
+    version?: TapoProtocolType; /* Default: AUTO */
+    verbose?: boolean; /* Default: false */        
 }
+
+type payload: boolean /* power */ || string /* color */ || number /* brightness */
 ```
 
 [example1]
 
 ```javascript
-msg = {
+msg.config = {
   "email": "your@gmail.com",
   "password": "password",
   "deviceIp": "192.168.0.xxx",
   "command": "power",
-  "option": {
-    "power": 0
-  }
+  "version": 3 /* AUTO */
 }
+msg.paylaod = true;
 ```
 
 [example2]
 
 ```javascript
-msg = {
+msg.config = {
   "email": "your@gmail.com",
   "password": "password",
   "deviceIp": "192.168.0.xxx",
-  "command": "toggle"
+  "command": "toggle",
+  "version": 2, /* KLAP */
+  "verbose": true
 }
 ```
 
+[example3]
+
+```javascript
+msg.config = {
+  "email": "your@gmail.com",
+  "password": "password",
+  "deviceIp": "192.168.0.xxx",
+  "command": "color"
+}
+msg.paylaod = "white";
+```
 ### Outputs
 
 The processing result is passed by msg.payload. It consists of an object that contains the following properties:
 
 ```typescript
-type tapoConnectResults = {
+type TapoResuls = {
     result: boolean; /* true: success, false: failure */
-    tapoDeviceInfo?: tapoDeviceInfo; /* smart plug device infomation */
+    tapoDeviceInfo?: TapoDeviceInfo; /* Tapo device infomation */
+    tapoEnergyUsage?: TapoDeviceInfo | undefined; /* Tapo device energy if compatible */ 
     errorInf?: Error;
 }
 ```
@@ -240,9 +233,9 @@ false: smart plug power off
       ssid: "SSID"
       signal_level: 0
       rssi: 0
-      region: "Asia/Tokyo"
+      region: "Europe/Madrid"
       time_diff: 0
-      lang: "ja_JP"
+      lang: "es_ES"
     },
     tapoEnergyUsage: {
       ????
