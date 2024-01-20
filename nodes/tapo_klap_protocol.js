@@ -28,10 +28,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlugDeviceState = exports.PlugDevice = exports.TapoDevice = exports.TapoDevicesType = exports.SnowflakeId = exports.Chiper = exports.Session = exports.PassthroughProtocol = exports.KlapChiper = exports.KlapSession = exports.KlapProtocol = exports.TapoError = exports.TapoChiper = exports.TapoSession = exports.TapoProtocol = exports.ColorParams = exports.Components = exports.ControlChildParams = exports.MultipleRequestParams = exports.PaginationParams = exports.SecurePassthroughParams = exports.LoginDeviceParamsV2 = exports.LoginDeviceParams = exports.HandshakeParams = exports.TapoResponse = exports.TapoRequest = exports.TapoClient = exports.AuthCredential = exports.TapoProtocolType = exports.ErrorCode = exports.supportEnergyUsage = void 0;
 // Import modules
-const crypt = require('crypto');
 const util_1 = __importStar(require("util"));
 const axios_1 = __importDefault(require("axios"));
-const crypto_1 = __importDefault(require("crypto"));
+const node_crypto_1 = __importDefault(require("node:crypto"));
 const uuid_1 = require("uuid");
 const local_devices_1 = __importDefault(require("local-devices"));
 // Global constants for internal use
@@ -502,7 +501,7 @@ exports.HandshakeParams = HandshakeParams;
 class LoginDeviceParams {
     // Constructor to initialize the class
     constructor(user, pass) {
-        this.username = Buffer.from(crypt.createHash("sha1").update(user).digest('hex')).toString('base64');
+        this.username = Buffer.from(node_crypto_1.default.createHash("sha1").update(user).digest('hex')).toString('base64');
         this.password = Buffer.from(pass).toString('base64');
     }
 }
@@ -510,8 +509,8 @@ exports.LoginDeviceParams = LoginDeviceParams;
 class LoginDeviceParamsV2 {
     // Constructor to initialize the class
     constructor(user, pass) {
-        this.username = Buffer.from(crypt.createHash("sha1").update(user).digest('hex')).toString('base64');
-        this.password2 = Buffer.from(crypt.createHash("sha1").update(pass).digest('hex')).toString('base64');
+        this.username = Buffer.from(node_crypto_1.default.createHash("sha1").update(user).digest('hex')).toString('base64');
+        this.password2 = Buffer.from(node_crypto_1.default.createHash("sha1").update(pass).digest('hex')).toString('base64');
     }
 }
 exports.LoginDeviceParamsV2 = LoginDeviceParamsV2;
@@ -741,10 +740,10 @@ class KlapProtocol extends TapoProtocol {
         ]));
     }
     _sha1(payload) {
-        return crypt.createHash("sha1").update(payload).digest();
+        return node_crypto_1.default.createHash("sha1").update(payload).digest();
     }
     _sha256(payload) {
-        return crypt.createHash("sha256").update(payload).digest();
+        return node_crypto_1.default.createHash("sha256").update(payload).digest();
     }
     // Private method to post a session
     async session_post(url, data, cookies, params) {
@@ -798,7 +797,7 @@ class KlapProtocol extends TapoProtocol {
     // Private method Handshake1 to get remote_seed and auth_hash
     async perform_handshake1(new_local_seed) {
         // Set local seed as random 16 bytes seed if not provided
-        this._local_seed = (typeof (new_local_seed) == 'undefined' ? Buffer.from(crypt.getRandomValues(new Uint8Array(16))) : new_local_seed);
+        this._local_seed = (typeof (new_local_seed) == 'undefined' ? Buffer.from(node_crypto_1.default.webcrypto.getRandomValues(new Uint8Array(16))) : new_local_seed);
         // Prepare post parameters
         this._session = null;
         const url = this._base_url + "/handshake1";
@@ -1011,36 +1010,36 @@ class KlapChiper extends TapoChiper {
         }
         if (!(msg instanceof Buffer))
             throw new TapoError("El tipo no es Buffer - " + typeof (msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name);
-        const cipher = crypt.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
+        const cipher = node_crypto_1.default.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
         const encryptor = cipher.update(msg);
         const final = cipher.final();
         const ciphertext = Buffer.concat([encryptor, final]);
-        const hash = crypt.createHash('sha256');
+        const hash = node_crypto_1.default.createHash('sha256');
         hash.update(Buffer.concat([this._sig, Buffer.from(this._seq.toString(16), 'hex'), ciphertext]));
         const signature = hash.digest();
         return [Buffer.concat([signature, ciphertext]), this._seq];
     }
     // Public method to decrypt
     decrypt(msg) {
-        const cipher = crypt.createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
+        const cipher = node_crypto_1.default.createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
         const plaintextbytes = Buffer.concat([cipher.update(msg.subarray(32)), cipher.final()]);
         return plaintextbytes.toString();
     }
     // Private method to derive the key
     _key_derive(local_seed, remote_seed, user_hash) {
         const payload = new Uint8Array([...Buffer.from("lsk"), ...local_seed, ...remote_seed, ...user_hash]);
-        const hash = crypt.createHash("sha256").update(payload).digest();
+        const hash = node_crypto_1.default.createHash("sha256").update(payload).digest();
         return hash.subarray(0, 16);
     }
     _iv_derive(local_seed, remote_seed, user_hash) {
         const payload = new Uint8Array([...Buffer.from("iv"), ...local_seed, ...remote_seed, ...user_hash]);
-        const fulliv = crypt.createHash("sha256").update(payload).digest();
+        const fulliv = node_crypto_1.default.createHash("sha256").update(payload).digest();
         const seq = fulliv.subarray(fulliv.length - 4).readInt32BE();
         return [fulliv.subarray(0, 12), seq];
     }
     _sig_derive(local_seed, remote_seed, user_hash) {
         const payload = new Uint8Array([...Buffer.from("ldk"), ...local_seed, ...remote_seed, ...user_hash]);
-        const hash = crypt.createHash("sha256").update(payload).digest();
+        const hash = node_crypto_1.default.createHash("sha256").update(payload).digest();
         return hash.subarray(0, 28);
     }
     _iv_seq() {
@@ -1091,7 +1090,7 @@ class PassthroughProtocol extends TapoProtocol {
                 passphrase: PASSPHRASE
             }
         };
-        const generateKeyPair = util_1.default.promisify(crypto_1.default.generateKeyPair);
+        const generateKeyPair = util_1.default.promisify(node_crypto_1.default.generateKeyPair);
         const pair = await generateKeyPair(RSA_CIPHER_ALGORITHM, RSA_OPTIONS);
         return pair;
     }
@@ -1335,7 +1334,7 @@ class Chiper extends TapoChiper {
         this._key = (typeof (key) == 'undefined' ? null : key);
         this._iv = (typeof (iv) == 'undefined' ? null : iv);
         if ((this._key != null) && (this._iv != null)) {
-            this.cipher = crypt.createCipheriv(AES_CIPHER_ALGORITHM, key, iv).setAutoPadding(true);
+            this.cipher = node_crypto_1.default.createCipheriv(AES_CIPHER_ALGORITHM, key, iv).setAutoPadding(true);
         }
         else {
             this.cipher = null;
@@ -1355,16 +1354,16 @@ class Chiper extends TapoChiper {
         else {
             this._key = key_and_iv.subarray(0, 16);
             this._iv = key_and_iv.subarray(16, 32);
-            this.cipher = crypt.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
+            this.cipher = node_crypto_1.default.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
             return this;
         }
     }
     // Private method to read the device key from handshake info    
     readDeviceKey(pemKey, privateKey) {
         const keyBytes = Buffer.from(pemKey, 'base64');
-        const deviceKey = crypt.privateDecrypt({
+        const deviceKey = node_crypto_1.default.privateDecrypt({
             key: privateKey,
-            padding: crypt.constants.RSA_PKCS1_PADDING,
+            padding: node_crypto_1.default.constants.RSA_PKCS1_PADDING,
             passphrase: PASSPHRASE,
         }, keyBytes);
         return deviceKey;
@@ -1374,7 +1373,7 @@ class Chiper extends TapoChiper {
         if (typeof msg == 'string') {
             msg = Buffer.from(msg, 'base64');
         }
-        const cipher = crypt.createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
+        const cipher = node_crypto_1.default.createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
         const plaintextbytes = Buffer.concat([cipher.update(msg), cipher.final()]);
         return JSON.parse(plaintextbytes.toString());
     }
@@ -1385,7 +1384,7 @@ class Chiper extends TapoChiper {
         }
         if (!(msg instanceof Buffer))
             throw new TapoError("El tipo no es Buffer - " + typeof (msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name);
-        const cipher = crypt.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
+        const cipher = node_crypto_1.default.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
         const encryptor = cipher.update(msg);
         const final = cipher.final();
         const ciphertext = Buffer.concat([encryptor, final]);

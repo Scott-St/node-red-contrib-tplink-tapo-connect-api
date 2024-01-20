@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /// <reference types="node" />
 import { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import crypto, { Cipher } from 'crypto';
+import crypto, { Cipher } from 'node:crypto';
 export type Json_T = {
     [any: string]: any;
 };
