@@ -1,53 +1,47 @@
 # node-red-contrib-tplink-tapo-connect-api
 
-Unofficial node-RED node for connecting to TP-Link Tapo devices with new interface (KLAP and PASSTHROUGH). Currently limited to the:
+Unofficial node-RED node for connecting to TP-Link Tapo devices with new interface (KLAP) and previous one (PASSTHROUGH). Currently limited to the:
 - P100, P105, P110, P115 smart plugs
 - L510E, L530E smart bulbs
 - L900-10 smart strip
 
 ![node](./figs/sample00.png)
 
-## node commands
+## Node command options
 
 - power
 
-    ![node-command](figs/node-power.png)
-
+    ![node-actions](figs/node-power.png)
     This node command provides the ability to power (on / off) the device by input `"msg.payload"` (boolean)
 
 - toggle
 
-    ![node-command](figs/node-toggle.png)
-
+    ![node-actions](figs/node-toggle.png)
     This node command provides the ability to toggle (on / off) the power of tapo smart plugs.
 
 - turn-on
 
-    ![node-command](figs/node-turn-on.png)
-
+    ![node-actions](figs/node-turn-on.png)
     This node command provides the ability to power on tapo smart plugs.
 
 - turn-off
 
-    ![node-command](figs/node-turn-off.png)
-
+    ![node-actions](figs/node-turn-off.png)
     This node command provides the ability to power off tapo smart plugs.
 
 - brightness
 
-    ![node-brightness](figs/node-brightness.png)
-
+    ![node-actions](figs/node-brightness.png)
     This node command provides the ability to set the brightness of tapo smart bulbs.
 
 - colour
 
-    ![node-command](figs/node-colour.png)
-
+    ![node-actions](figs/node-colour.png)
     This node command provides the ability to set the color of tapo smart bulbs.
 
 - status
 
-    ![node-command](figs/node-status.png)
+    ![node-actions](figs/node-status.png)
 
     This node command provides the ability to get the device infomation of tapo smart plugs.
 
@@ -55,15 +49,22 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
 
     Get the device information from `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"`.
 
-You can always override the node command configuration by means of `"msg.config.command"` that takes an string with one of the previous commands.
+## Node configuration by message (`"msg"`)
 
-You can also override the version of device protocol by means of `"msg.config.version"` that takes a number (1 - PASSTHROUGH, 2 - KLAP, 3 - AUTO).
+You can always override the node command configuration by means of the following message properties:
+  - `"msg.config.command"` takes an string with one of the following valid command options
+    ```typescript
+    type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
+    ```
+  - `"msg.config.version"` takes a number indicating the protocol 
+    (1 - PASSTHROUGH, 2 - KLAP, 3 - AUTO)
 
-You can also get a verbose output of errors by means of `"msg.config.verbose"` that takes a boolean. When verbose is selected a 'track' object is included.
+  - `"msg.config.verbose"` takes a boolean indicating the error verbose. 
+    When verbose is selected a `"msg.payload.errorInf.track"` object is included.
 
 ## Pre-requisites
 
-The node-red-contrib-tapo-new-api requires `Node-RED 1.00` to be installed.
+The node-red-contrib-tapo-new-api requires `Node-RED 15.0.0 or higher` to be installed.
 
 ## Install
 
@@ -77,27 +78,27 @@ npm install node-red-contrib-tapo-new-api
 
   ![config](./figs/sample01.png)
 
-  - Name
+  - **Name**
 
     Set the node name displayed in the flow.
 
-  - Email
+  - **Email**
 
     Set the email address registered with Tp Link.
 
-  - Password
+  - **Password**
 
     Set the password registered with Tp Link.
 
-  - Protocol
+  - **Protocol**
 
     Set the protocol to be used in the communication with Tapo device.
 
-  - Command
+  - **Command**
 
     Set the kind of command the node will take as initial configuration.
 
-  - Search mode
+  - **Search mode**
 
     Select a search mode for the tapo device.
 
@@ -105,17 +106,17 @@ npm install node-red-contrib-tapo-new-api
     - ip : search by ip. (It's fast.)
     - alias: search by alias and ip range.
 
-  - Tapo ipaddress(`selected: ip`)
+  - **Tapo ipaddress(`selected: ip`)**
 
     Set the IP address to the Tapo device.
 
-  - Tapo alias(`selected: alias`)
+  - **Tapo alias(`selected: alias`)**
 
-    set the tapo device alias registered with Tp Link.
+    Set the tapo device alias registered with Tp Link.
 
-  - Tapo find ip range(`selected: alias`)
+  - **Tapo find ip range(`selected: alias`)**
 
-    set the IP range to search for Tapo device.
+    Set the IP range to search for Tapo device.
 
     [Usage]
     - case1: "192.168.0.1 to 192.168.0.25"
@@ -123,11 +124,11 @@ npm install node-red-contrib-tapo-new-api
 
 ### Inputs
 
-`msg.payload`
+`msg`
 
 ```typescript
 type search_mode_type = "ip" | "alias";
-type command_type = "status" | "power" | "on" | "off" | "toggle" | "color";
+type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
 
 type config {
     email: string;
@@ -251,7 +252,7 @@ There are some npm-scripts to help developments.
 - npm run build - Make `./data/my-node` directory from the `src` directory and Install the my-node in Node-RED.
 - npm run start - Start Node-RED. `"http://localhost:1880"`
 
-## file list
+## File tree
 
   ```text
   [root]
