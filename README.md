@@ -9,37 +9,37 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
 
 ## Node command options
 
-- power
+- **power**
 
     ![node-actions](figs/node-power.png)
     This node command provides the ability to power (on / off) the device by input `"msg.payload"` (boolean)
 
-- toggle
+- **toggle**
 
     ![node-actions](figs/node-toggle.png)
     This node command provides the ability to toggle (on / off) the power of tapo smart plugs.
 
-- turn-on
+- **turn-on**
 
     ![node-actions](figs/node-turn-on.png)
     This node command provides the ability to power on tapo smart plugs.
 
-- turn-off
+- **turn-off**
 
     ![node-actions](figs/node-turn-off.png)
     This node command provides the ability to power off tapo smart plugs.
 
-- brightness
+- **brightness**
 
     ![node-actions](figs/node-brightness.png)
     This node command provides the ability to set the brightness of tapo smart bulbs.
 
-- colour
+- **color**
 
     ![node-actions](figs/node-colour.png)
     This node command provides the ability to set the color of tapo smart bulbs.
 
-- status
+- **status**
 
     ![node-actions](figs/node-status.png)
 
@@ -47,9 +47,9 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
 
     Models that can monitor energy acquire energy information.
 
-    Get the device information from `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"`.
+    `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"` provides the device information.
 
-## Node configuration by message (`"msg"`)
+## Node configuration by message (`msg`)
 
 You can always override the node command configuration by means of the following message properties:
   - `"msg.config.command"` takes an string with one of the following valid command options
@@ -57,9 +57,11 @@ You can always override the node command configuration by means of the following
     type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
     ```
   - `"msg.config.version"` takes a number indicating the protocol 
+  
     (1 - PASSTHROUGH, 2 - KLAP, 3 - AUTO)
 
-  - `"msg.config.verbose"` takes a boolean indicating the error verbose. 
+  - `"msg.config.verbose"` takes a boolean indicating the error verbose.
+
     When verbose is selected a `"msg.payload.errorInf.track"` object is included.
 
 ## Pre-requisites
