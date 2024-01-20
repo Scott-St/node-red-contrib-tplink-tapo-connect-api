@@ -5,55 +5,53 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
 - L510E, L530E smart bulbs
 - L900-10 smart strip
 
-![node](./figs/sample00.png)
+![node-red-contrib-tapo-new-api](./figs/sample00.png)
 
 ## Node command options
 
 - **power**
 
-    ![node-actions](figs/node-power.png)
+    ![node-red-contrib-tapo-new-api](figs/node-power.png)
 
     This node command provides the ability to power (on / off) the device by input `"msg.payload"` (boolean)
 
 - **toggle**
 
-    ![node-actions](figs/node-toggle.png)
+    ![node-red-contrib-tapo-new-api](figs/node-toggle.png)
 
     This node command provides the ability to toggle (on / off) the power of tapo smart plugs.
 
 - **turn-on**
 
-    ![node-actions](figs/node-turn-on.png)
+    ![node-red-contrib-tapo-new-api](figs/node-turn-on.png)
 
     This node command provides the ability to power on tapo smart plugs.
 
 - **turn-off**
 
-    ![node-actions](figs/node-turn-off.png)
+    ![node-red-contrib-tapo-new-api](figs/node-turn-off.png)
 
     This node command provides the ability to power off tapo smart plugs.
 
 - **brightness**
 
-    ![node-actions](figs/node-brightness.png)
+    ![node-red-contrib-tapo-new-api](figs/node-brightness.png)
 
     This node command provides the ability to set the brightness of tapo smart bulbs.
 
 - **color**
 
-    ![node-actions](figs/node-colour.png)
-    
+    ![node-red-contrib-tapo-new-api](figs/node-colour.png)
+
     This node command provides the ability to set the color of tapo smart bulbs.
 
 - **status**
 
-    ![node-actions](figs/node-status.png)
+    ![node-red-contrib-tapo-new-api](figs/node-status.png)
 
-    This node command provides the ability to get the device infomation of tapo smart plugs.
+    This node command provides the ability to get the device infomation of tapo smart plugs. Models that can monitor energy acquire energy information.
 
-    Models that can monitor energy acquire energy information.
-
-    `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"` provides the device information.
+    `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"` will provide the device information and usage (if device can measure energy).
 
 ## Node configuration by message (`msg`)
 
@@ -110,7 +108,7 @@ npm install node-red-contrib-tapo-new-api
 
     Select a search mode for the tapo device.
 
-    [Usage]
+    **Usage**
     - ip : search by ip. (It's fast.)
     - alias: search by alias and ip range.
 
@@ -126,7 +124,7 @@ npm install node-red-contrib-tapo-new-api
 
     Set the IP range to search for Tapo device.
 
-    [Usage]
+    **Usage**
     - case1: "192.168.0.1 to 192.168.0.25"
     - case2: "192.168.0.0/24"
 
@@ -153,7 +151,7 @@ type config {
 type payload: boolean /* power */ || string /* color */ || number /* brightness */
 ```
 
-[example1]
+**[example1]**
 
 ```javascript
 msg.config = {
@@ -166,7 +164,7 @@ msg.config = {
 msg.paylaod = true;
 ```
 
-[example2]
+**[example2]**
 
 ```javascript
 msg.config = {
@@ -179,7 +177,7 @@ msg.config = {
 }
 ```
 
-[example3]
+**[example3]**
 
 ```javascript
 msg.config = {
@@ -203,7 +201,7 @@ type TapoResuls = {
 }
 ```
 
-[smart plug device infomation]
+**[smart plug device infomation]**
 
 You can tell if the device is on or off by getting "device_on".
 
