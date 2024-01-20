@@ -12,31 +12,37 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
 - **power**
 
     ![node-actions](figs/node-power.png)
+
     This node command provides the ability to power (on / off) the device by input `"msg.payload"` (boolean)
 
 - **toggle**
 
     ![node-actions](figs/node-toggle.png)
+
     This node command provides the ability to toggle (on / off) the power of tapo smart plugs.
 
 - **turn-on**
 
     ![node-actions](figs/node-turn-on.png)
+
     This node command provides the ability to power on tapo smart plugs.
 
 - **turn-off**
 
     ![node-actions](figs/node-turn-off.png)
+
     This node command provides the ability to power off tapo smart plugs.
 
 - **brightness**
 
     ![node-actions](figs/node-brightness.png)
+
     This node command provides the ability to set the brightness of tapo smart bulbs.
 
 - **color**
 
     ![node-actions](figs/node-colour.png)
+    
     This node command provides the ability to set the color of tapo smart bulbs.
 
 - **status**
