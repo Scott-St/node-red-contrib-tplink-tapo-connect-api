@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
  
+## [0.4.5] - 2023-12-21
+  
+Minor changes on README. CHANGELOG also added. No functional changes
+ 
+### Added
+
+- [CHANGELOG.md](https://github.com/mbserran/node-red-contrib-tapo-new-api/blob/master/CHANGELOG.md)
+  MINOR `CHANGELOG.md` description of version changes added.
+
+### Changed
+ 
+### Fixed
+
 ## [0.4.1] - 2023-12-20
   
 Help description added to the node and accessible from Node-RED.

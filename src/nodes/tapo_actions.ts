@@ -6,7 +6,7 @@ import { AuthCredential, TapoResuls, TapoDevice, TapoDeviceInfo, TapoEnergyUsage
 // Type to be used in tapo actions
 namespace tapo_actions {
     export type search_mode_type = "ip" | "alias";
-    export type command_type = "status" | "power" | "on" | "off" | "toggle" | "color";
+    export type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
     export type config_base = {
         email: string;
         password: string;

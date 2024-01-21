@@ -1,9 +1,9 @@
 'use strict'
 
 // Import modules
-import util, { TextEncoder } from 'util';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import crypto, { Cipher, KeyObject } from 'node:crypto';
+import {TextEncoder, promisify} from 'node:util';
+import {Cipher, KeyObject, createHash, createCipheriv, createDecipheriv, webcrypto, KeyPairKeyObjectResult, generateKeyPair, privateDecrypt, constants} from 'node:crypto';
+import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 import {v4 as uuidv4} from 'uuid';
 import find from 'local-devices';
 
@@ -539,7 +539,7 @@ export class LoginDeviceParams {
 
     // Constructor to initialize the class
     constructor(user: string, pass: string) {
-        this.username = Buffer.from(crypto.createHash("sha1").update(user).digest('hex')).toString('base64');
+        this.username = Buffer.from(createHash("sha1").update(user).digest('hex')).toString('base64');
         this.password = Buffer.from(pass).toString('base64');
     }
 }
@@ -551,8 +551,8 @@ export class LoginDeviceParamsV2 {
 
     // Constructor to initialize the class
     constructor(user: string, pass: string) {
-        this.username = Buffer.from(crypto.createHash("sha1").update(user).digest('hex')).toString('base64');
-        this.password2 = Buffer.from(crypto.createHash("sha1").update(pass).digest('hex')).toString('base64');
+        this.username = Buffer.from(createHash("sha1").update(user).digest('hex')).toString('base64');
+        this.password2 = Buffer.from(createHash("sha1").update(pass).digest('hex')).toString('base64');
     }
 }
 export class SecurePassthroughParams {
@@ -837,11 +837,11 @@ export class KlapProtocol extends TapoProtocol {
     }
 
     public _sha1(payload: Buffer): Buffer {
-        return crypto.createHash("sha1").update(payload).digest();
+        return createHash("sha1").update(payload).digest();
     }
 
     public _sha256(payload: Buffer): Buffer {
-        return crypto.createHash("sha256").update(payload).digest();
+        return createHash("sha256").update(payload).digest();
     }
 
     // Private method to post a session
@@ -902,7 +902,7 @@ export class KlapProtocol extends TapoProtocol {
     public async perform_handshake1(new_local_seed?: Buffer): Promise<[Buffer, Buffer]> {
         
         // Set local seed as random 16 bytes seed if not provided
-        this._local_seed = (typeof(new_local_seed) == 'undefined' ? Buffer.from(crypto.webcrypto.getRandomValues(new Uint8Array(16))) : new_local_seed);
+        this._local_seed = (typeof(new_local_seed) == 'undefined' ? Buffer.from(webcrypto.getRandomValues(new Uint8Array(16))) : new_local_seed);
 
         // Prepare post parameters
         this._session = null;
@@ -1145,11 +1145,11 @@ export class KlapChiper extends TapoChiper {
             msg = Buffer.from(new TextEncoder().encode(msg));
         }
         if (!(msg instanceof Buffer)) throw new TapoError("El tipo no es Buffer - " + typeof(msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name) ;
-        const cipher: Cipher = crypto.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
+        const cipher: Cipher = createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
         const encryptor = cipher.update(msg);
         const final = cipher.final();
         const ciphertext = Buffer.concat([encryptor,final]);
-        const hash = crypto.createHash('sha256');
+        const hash = createHash('sha256');
         hash.update(Buffer.concat([this._sig, Buffer.from(this._seq.toString(16), 'hex'), ciphertext]));
         const signature = hash.digest();
         return [Buffer.concat([signature, ciphertext]), this._seq];
@@ -1157,7 +1157,7 @@ export class KlapChiper extends TapoChiper {
 
     // Public method to decrypt
     public decrypt(msg: Buffer): string {
-        const cipher: Cipher = crypto.createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
+        const cipher: Cipher = createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
         const plaintextbytes = Buffer.concat([cipher.update(msg.subarray(32)), cipher.final()]);
         return plaintextbytes.toString();
     }
@@ -1165,20 +1165,20 @@ export class KlapChiper extends TapoChiper {
     // Private method to derive the key
     private _key_derive(local_seed: Buffer, remote_seed: Buffer, user_hash: Buffer): Buffer {
         const payload: Uint8Array = new Uint8Array([...Buffer.from("lsk"), ...local_seed, ...remote_seed, ...user_hash]);
-        const hash: Buffer = crypto.createHash("sha256").update(payload).digest();
+        const hash: Buffer = createHash("sha256").update(payload).digest();
         return hash.subarray(0, 16);
     }
 
     private _iv_derive(local_seed: Buffer, remote_seed: Buffer, user_hash: Buffer): [Buffer, number] {
         const payload: Uint8Array = new Uint8Array([...Buffer.from("iv"), ...local_seed, ...remote_seed, ...user_hash]);
-        const fulliv: Buffer = crypto.createHash("sha256").update(payload).digest();
+        const fulliv: Buffer = createHash("sha256").update(payload).digest();
         const seq: number = fulliv.subarray(fulliv.length-4).readInt32BE();
         return [fulliv.subarray(0, 12), seq];
     }
 
     private _sig_derive(local_seed: Buffer, remote_seed: Buffer, user_hash: Buffer): Buffer {
         const payload: Uint8Array = new Uint8Array([...Buffer.from("ldk"), ...local_seed, ...remote_seed, ...user_hash]);
-        const hash: Buffer = crypto.createHash("sha256").update(payload).digest();
+        const hash: Buffer = createHash("sha256").update(payload).digest();
         return hash.subarray(0, 28);
     }
 
@@ -1225,7 +1225,7 @@ export class PassthroughProtocol extends TapoProtocol {
     }
 
     // Public methods used in the class to manage encryption and ciphering
-    public async create_key_pair(key_size?: number): Promise<crypto.KeyPairKeyObjectResult> {
+    public async create_key_pair(key_size?: number): Promise<KeyPairKeyObjectResult> {
 
         // Handle the parameter
         const k_size: number = (typeof(key_size) == 'undefined' ? 1024 : key_size);
@@ -1244,8 +1244,8 @@ export class PassthroughProtocol extends TapoProtocol {
                 passphrase: PASSPHRASE
             }
         };
-        const generateKeyPair = util.promisify(crypto.generateKeyPair);
-        const pair: crypto.KeyPairKeyObjectResult = await generateKeyPair(RSA_CIPHER_ALGORITHM, RSA_OPTIONS);
+        const generateKeyPair_prom = promisify(generateKeyPair);
+        const pair: KeyPairKeyObjectResult = await generateKeyPair_prom(RSA_CIPHER_ALGORITHM, RSA_OPTIONS);
         return pair;
     }
  
@@ -1293,7 +1293,7 @@ export class PassthroughProtocol extends TapoProtocol {
         let session: Session = null;
 
         // Get the key pair and handshake parameters
-        const key_pair: crypto.KeyPairKeyObjectResult = await this.create_key_pair();
+        const key_pair: KeyPairKeyObjectResult = await this.create_key_pair();
         const handshake_params: HandshakeParams = new HandshakeParams(key_pair.publicKey);
         console.debug("Handshake params: " + JSON.stringify(handshake_params));
 
@@ -1467,12 +1467,12 @@ export class Session extends TapoSession{
     public expire_at: number;
     public handshake_complete: boolean;
     public url: string;
-    public key_pair: crypto.KeyPairKeyObjectResult;
+    public key_pair: KeyPairKeyObjectResult;
     public token: string;
     public terminal_uuid: string;
 
     // Constructor to initialize the class
-    constructor(session: string, timeout: number, expire?: boolean, url?: string, terminal?: string, keypair?: crypto.KeyPairKeyObjectResult, hsk_req?: boolean, chip?: Chiper) {
+    constructor(session: string, timeout: number, expire?: boolean, url?: string, terminal?: string, keypair?: KeyPairKeyObjectResult, hsk_req?: boolean, chip?: Chiper) {
         super();
         this.chiper = (typeof(chip) == 'undefined' ? null : chip);
         this.session_id = session;
@@ -1527,7 +1527,7 @@ export class Chiper extends TapoChiper {
         this._key = (typeof(key) == 'undefined' ? null : key);
         this._iv = (typeof(iv) == 'undefined' ? null : iv);
         if ((this._key != null) && (this._iv != null)) {
-            this.cipher = crypto.createCipheriv(AES_CIPHER_ALGORITHM, key, iv).setAutoPadding(true)
+            this.cipher = createCipheriv(AES_CIPHER_ALGORITHM, key, iv).setAutoPadding(true)
         } else {
             this.cipher = null
         }
@@ -1539,7 +1539,7 @@ export class Chiper extends TapoChiper {
     }
 
     // Public method to create from keypair
-    public create_from_keypair(handshake_key: string, keypair: crypto.KeyPairKeyObjectResult): Chiper {
+    public create_from_keypair(handshake_key: string, keypair: KeyPairKeyObjectResult): Chiper {
         //const private_key: Buffer = Buffer.from(keypair.privateKey, 'base64');
         const key_and_iv: Buffer = this.readDeviceKey(handshake_key, keypair.privateKey);
         if (key_and_iv === null) {
@@ -1547,7 +1547,7 @@ export class Chiper extends TapoChiper {
         } else {
             this._key =  key_and_iv.subarray(0,16);
             this._iv = key_and_iv.subarray(16, 32);
-            this.cipher = crypto.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
+            this.cipher = createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
             return this;
         }
     }
@@ -1555,9 +1555,9 @@ export class Chiper extends TapoChiper {
     // Private method to read the device key from handshake info    
     private readDeviceKey(pemKey: string, privateKey: KeyObject) : Buffer {
         const keyBytes = Buffer.from(pemKey, 'base64');
-        const deviceKey = crypto.privateDecrypt({
+        const deviceKey = privateDecrypt({
             key: privateKey,
-            padding: crypto.constants.RSA_PKCS1_PADDING,
+            padding: constants.RSA_PKCS1_PADDING,
             passphrase: PASSPHRASE,
         }, keyBytes);
         
@@ -1569,7 +1569,7 @@ export class Chiper extends TapoChiper {
         if (typeof msg == 'string') {
             msg = Buffer.from(msg, 'base64');
         }
-        const cipher = crypto.createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
+        const cipher = createDecipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
         const plaintextbytes = Buffer.concat([cipher.update(msg), cipher.final()]);
         return JSON.parse(plaintextbytes.toString());
     }
@@ -1580,7 +1580,7 @@ export class Chiper extends TapoChiper {
             msg = Buffer.from(msg);
         }
         if (!(msg instanceof Buffer)) throw new TapoError("El tipo no es Buffer - " + typeof(msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name) ;
-        const cipher = crypto.createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
+        const cipher = createCipheriv(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
         const encryptor = cipher.update(msg);
         const final = cipher.final();
         const ciphertext = Buffer.concat([encryptor,final]);

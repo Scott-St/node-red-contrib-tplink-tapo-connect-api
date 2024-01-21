@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /// <reference types="node" />
+import { Cipher, KeyPairKeyObjectResult } from 'node:crypto';
 import { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import crypto, { Cipher } from 'node:crypto';
 export type Json_T = {
     [any: string]: any;
 };
@@ -304,7 +304,7 @@ export declare class PassthroughProtocol extends TapoProtocol {
     _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
     constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance);
-    create_key_pair(key_size?: number): Promise<crypto.KeyPairKeyObjectResult>;
+    create_key_pair(key_size?: number): Promise<KeyPairKeyObjectResult>;
     session_post(url: string, data: any, cookies?: any, params?: any): Promise<AxiosResponse>;
     perform_handshake(url?: string): Promise<Session>;
     _login_with_version(is_trying_v2?: boolean): Promise<Session>;
@@ -319,10 +319,10 @@ export declare class Session extends TapoSession {
     expire_at: number;
     handshake_complete: boolean;
     url: string;
-    key_pair: crypto.KeyPairKeyObjectResult;
+    key_pair: KeyPairKeyObjectResult;
     token: string;
     terminal_uuid: string;
-    constructor(session: string, timeout: number, expire?: boolean, url?: string, terminal?: string, keypair?: crypto.KeyPairKeyObjectResult, hsk_req?: boolean, chip?: Chiper);
+    constructor(session: string, timeout: number, expire?: boolean, url?: string, terminal?: string, keypair?: KeyPairKeyObjectResult, hsk_req?: boolean, chip?: Chiper);
     get_cookies(): [Json_T, string];
     is_handshake_session_expired(): boolean;
     invalidate(): void;
@@ -333,7 +333,7 @@ export declare class Chiper extends TapoChiper {
     _iv: Buffer;
     cipher: Cipher;
     constructor(key?: Buffer, iv?: Buffer);
-    create_from_keypair(handshake_key: string, keypair: crypto.KeyPairKeyObjectResult): Chiper;
+    create_from_keypair(handshake_key: string, keypair: KeyPairKeyObjectResult): Chiper;
     private readDeviceKey;
     decrypt(msg: string | Buffer): string;
     encrypt(msg: string | Buffer): string;

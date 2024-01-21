@@ -16,9 +16,6 @@
 -->
 
 <script type="text/javascript">
-
-
-    
     function mk_conf(NAME) {
         console.log("mk_conf");
         const icons = {
@@ -189,6 +186,111 @@
         <hr>
         <!---------------------------------------------------------------------------->
     </div>
+</script>
+
+<script type="text/x-red" data-help-name="tapo_new_actions">
+    <p>Unofficial node-RED node for connecting to TP-Link Tapo devices with <b>new interface (Klap)</b> or the <b>previous one (PassThrough)</b>. It can select also <b>automatically (Auto)</b> the protocol to use.</p>
+    <p>Currently supports:</p>
+    <ul>    
+        <li> P100, P105, P110, P115 smart plugs</li>
+        <li> L510E, L530E smart bulbs</li>
+        <li> L900-10 smart strip</li>
+    </ul>
+    
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">msg.config <span class="property-type">object</span></dt>
+        <dl class="message-properties">
+            <dt class="optional">command <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It specifies the behaviour of this instance of <b>actions</b> button.</dd>
+            <dd> It will be an string with one of the following values <code>type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";</code></dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">version <span class="property-type">number</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It defines the version of the protocol to use in this instance of <b>actions</b> button.</dd>
+            <dd> It will be a number with one of the following values <code>enum TapoProtocolType = {PASSTHROUGH = 1, KLAP = 2, AUTO = 3}</code></dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">verbose <span class="property-type">boolean</span></dt>
+            <dd> When set to <b>true</b> the object <code>msg.payload.errorInf.track</code> will be included in the output in case of error.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">email <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It specifies the username of the <b>Tapo account</b>.</dd>
+            <dd> It will only access to the <b>Tapo Cloud</b> if alias is used, but it is required in all cases to access the device locally.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">password <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It specifies the password of the <b>Tapo account</b>.</dd>
+            <dd> It will only access to the <b>Tapo Cloud</b> if alias is used, but it is required in all cases to access the device locally.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">searchMmode <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It specifies the way to search for the device attach to the instance of <b>actions</b> node.</dd>
+            <dd> It will be an string with one of the following values <code>type search_mode_type = "ip" | "alias";</code></dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">deviceIp <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It specifies the <b>ip</b> of the device.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">deviceAlias <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It specifies the <b>alias</b> of the device in the <b>Tapo Cloud</b>.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">deviceIpRange <span class="property-type">string</span></dt>
+            <dd> If set this property overrides the one specified in the configuration node. It restricts the search of IPs in the local network when <b>alias</b> is used.</dd>
+        </dl>
+    </dl>
+    <dl class="message-properties">
+        <dt class="optional">msg.payload <span class="property-type">boolean/string/number</span></dt>
+        <dl class="message-properties">
+            <dt class="optional">payload <span class="property-type">boolean</span></dt>
+            <dd> If <code>msg.config.command = "power"</code> then this property sets the <code>device_on</code> property, thus turning on or off the device.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">payload <span class="property-type">string</span></dt>
+            <dd> If <code>msg.config.command = "color"</code> then this property sets the <code>color</code> property. It can be an hex value or one of the following string values:</dd>
+            <dd>   <code> "blue" | "red" | "yellow" | "green" | "white" | "daylightwhite" | "warmwhite" </code></dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">payload <span class="property-type">number</span></dt>
+            <dd> If <code>msg.config.command = "brightness"</code> then this property sets the <code>brightness_level</code> property. It wil be truncated to a number between 0 to 100.</dd>
+        </dl>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dl class="message-properties">
+            <dt class="optional">result <span class="property-type">boolean</span></dt>
+            <dd> Returns whether the command was successful or not.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">tapoDeviceInfo <span class="property-type">object</span></dt>
+            <dd> An object containing all the info properties retrieved from the device.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">tapoEnergyUsage <span class="property-type">object</span></dt>
+            <dd> In case the device can measure energy, this object will contain all the energy consumption information retrieved from the device.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">errorInf <span class="property-type">object</span></dt>
+            <dd> Error object with the following properties:</dd>
+            <dd>   <code>{error_code: code of error, message: error description, agent: internal function failing, cause: root cause, track: tree of errors}</code></dd>
+        </dl>
+    </dl>
+
+    <h3>Details</h3>
+    <p> The node is used to connect to a single device using the appropriate Tapo protocol.<br>
+    Once configured the node could execute different commands and ndoe icon will change accordingly.<br>
+    The node configuration will configure the node statically, but a dynamic configuration may be done through <code>msg.config</code>.<br>
+    The output will be a fully descriptive object with different properties, that also enables appropriate error management<br></p>
+
+    <h3>References</h3>
+    <ul>
+        <li><a href="https://github.com/mbserran/node-red-contrib-tapo-new-api">GitHub</a> - the nodes github repository</li>
+    </ul>
 </script>
 
 <style>
