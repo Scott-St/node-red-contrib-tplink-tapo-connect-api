@@ -1,4 +1,4 @@
-# node-red-contrib-tplink-tapo-connect-api
+# node-red-contrib-tapo-new-api
 
 Unofficial node-RED node for connecting to TP-Link Tapo devices with new interface (KLAP) and previous one (PASSTHROUGH). Currently limited to the:
 - P100, P105, P110, P115 smart plugs
