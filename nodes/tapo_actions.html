@@ -215,6 +215,10 @@
             <dd> When set to <b>true</b> the object <code>msg.payload.errorInf.track</code> will be included in the output in case of error.</dd>
         </dl>
         <dl class="message-properties">
+            <dt class="optional">terminal_random <span class="property-type">boolean</span></dt>
+            <dd> When set to <b>true</b> the <code>terminal_uuid</code> will be randomly generated. Useful when deploying different buttons to attack same device.</dd>
+        </dl>
+        <dl class="message-properties">
             <dt class="optional">email <span class="property-type">string</span></dt>
             <dd> If set this property overrides the one specified in the configuration node. It specifies the username of the <b>Tapo account</b>.</dd>
             <dd> It will only access to the <b>Tapo Cloud</b> if alias is used, but it is required in all cases to access the device locally.</dd>

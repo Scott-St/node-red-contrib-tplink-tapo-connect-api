@@ -68,6 +68,10 @@ You can always override the node command configuration by means of the following
 
     When verbose is selected a `"msg.payload.errorInf.track"` object is included.
 
+  - `"msg.config.terninal_random"` takes a boolean indicating the terminal to use.
+
+    When terminal_random is `true` a random terminal valid UUID is used (useful when various buttons are configured to attack same device).
+
 ## Pre-requisites
 
 The node-red-contrib-tapo-new-api requires `Node-RED 15.0.0 or higher` to be installed.
