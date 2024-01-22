@@ -18,6 +18,7 @@ namespace tapo_actions {
         version?: TapoProtocolType;
         verbose?: boolean;
         device?: TapoDevice;
+        terminal_random?: boolean;
     }
     export interface app_node_def extends NodeDef, config_base {}
     export interface app_node extends Node, config_base {}
@@ -55,6 +56,7 @@ const nodeInit: NodeInitializer = (RED): void => {
             node.version = config?.version ?? TapoProtocolType.AUTO;
             node.verbose = false;
             node.device = null;
+            node.terminal_random = false;
         } catch (error) {
             node.status({ fill: "red", shape: "ring", text: "resources.message.error" });
             node.error(error);
@@ -80,9 +82,9 @@ const nodeInit: NodeInitializer = (RED): void => {
 
                     // Create the device object depending on the ip option
                     if (config.searchMode === "ip") {
-                        response.device = await new TapoDevice().get_device_by_IP(tapo_cred, config.deviceIp);
+                        response.device = await new TapoDevice(config.terminal_random).get_device_by_IP(tapo_cred, config.deviceIp);
                     } else {
-                        response.device = await new TapoDevice().get_device_by_alias(tapo_cred, config.deviceAlias, config.deviceIpRange);
+                        response.device = await new TapoDevice(config.terminal_random).get_device_by_alias(tapo_cred, config.deviceAlias, config.deviceIpRange);
                     }
 
                     // Update the config device
@@ -249,6 +251,7 @@ const nodeInit: NodeInitializer = (RED): void => {
                     command: msg?.config?.command ?? node.command,
                     version: msg?.config?.version ?? node.version,
                     verbose: msg?.config?.verbose ?? node.verbose,
+                    terminal_random: msg?.config?.terminal_random ?? node.terminal_random,
                     device: node.device
                 };
 

@@ -15,6 +15,7 @@ export declare const supportEnergyUsage: string[];
 export declare enum ErrorCode {
     ERROR_AXIOS_ERROR = 1,
     ERROR_TAPRES_JSON_INVALID = 2,
+    ERROR_AXIOS_FORBID = 3,
     GENERIC_ERROR = 99,
     ERROR_KL_ENCRYPT_FMT = 101,
     ERROR_KL_ENCRYPT_IV_LENGTH = 102,
@@ -78,10 +79,11 @@ export declare class TapoClient {
     _url: string;
     private _http_session;
     _protocol: TapoProtocol;
+    _terminal_random: boolean;
     actions: {
         [any: string]: (any: any) => any;
     };
-    constructor(auth_credential: AuthCredential, url: string, protocol?: TapoProtocol, http_session?: AxiosInstance);
+    constructor(auth_credential: AuthCredential, url: string, protocol?: TapoProtocol, http_session?: AxiosInstance, terminal_random?: boolean);
     create(credential: AuthCredential, address: string, port?: number, is_https?: boolean, http_session?: AxiosInstance, protocol_type?: TapoProtocolType): TapoClient;
     private _initialize_protocol_if_needed;
     private _guess_protocol;
@@ -89,7 +91,7 @@ export declare class TapoClient {
     send_request(request: TapoRequest, protocol?: TapoProtocolType): Promise<TapoResponse<Json_T>>;
     close(): void;
     execute_raw_request(request: TapoRequest, protocol?: TapoProtocolType, retry?: number): Promise<Json_T>;
-    get_component_negotiation(protocol?: TapoProtocolType): Promise<Components>;
+    get_component_negotiation(protocol?: TapoProtocolType, retry?: number): Promise<Components>;
     get_device_info(protocol?: TapoProtocolType): Promise<Json_T>;
     get_current_power(protocol?: TapoProtocolType): Promise<Json_T>;
     get_energy_usage(protocol?: TapoProtocolType): Promise<Json_T>;
@@ -220,6 +222,7 @@ export declare abstract class TapoProtocol {
     abstract _session: TapoSession;
     abstract _jar: Json_T;
     abstract _protocol_type: TapoProtocolType;
+    abstract _terminal_random: boolean;
     abstract perform_handshake(): any;
     abstract send_request(request: TapoRequest, retry?: number): Promise<TapoResponse<any>>;
     abstract close(): any;
@@ -229,6 +232,7 @@ export declare abstract class TapoSession {
     abstract session_id: string;
     abstract expire_at: number;
     abstract handshake_complete: boolean;
+    abstract terminal_uuid: string;
     abstract get_cookies(): [Json_T, string];
     abstract is_handshake_session_expired(): boolean;
     abstract invalidate(): any;
@@ -257,8 +261,10 @@ export declare class KlapProtocol extends TapoProtocol {
     _jar: Json_T;
     _http_session: AxiosInstance;
     _session: KlapSession | null;
+    _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
-    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance);
+    _terminal_random: boolean;
+    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance, terminal_random?: boolean);
     generate_auth_hash(auth: AuthCredential): Buffer;
     _sha1(payload: Buffer): Buffer;
     _sha256(payload: Buffer): Buffer;
@@ -275,7 +281,8 @@ export declare class KlapSession extends TapoSession {
     session_id: string;
     expire_at: number;
     handshake_complete: boolean;
-    constructor(session: string, timeout: number, expire?: boolean, hsk?: boolean, chip?: KlapChiper);
+    terminal_uuid: string;
+    constructor(session: string, timeout: number, expire?: boolean, terminal?: string, hsk?: boolean, chip?: KlapChiper);
     get_cookies(): [Json_T, string];
     is_handshake_session_expired(): boolean;
     invalidate(): void;
@@ -303,7 +310,8 @@ export declare class PassthroughProtocol extends TapoProtocol {
     _jar: Json_T;
     _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
-    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance);
+    _terminal_random: boolean;
+    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance, terminal_random?: boolean);
     create_key_pair(key_size?: number): Promise<KeyPairKeyObjectResult>;
     session_post(url: string, data: any, cookies?: any, params?: any): Promise<AxiosResponse>;
     perform_handshake(url?: string): Promise<Session>;
@@ -377,7 +385,8 @@ export declare class TapoDevice {
     isSameRegion: boolean;
     status: number;
     ip: string;
-    constructor(api?: TapoClient);
+    terminal_random?: boolean;
+    constructor(terminal_random?: boolean, api?: TapoClient);
     raw_command(method: string, params: Json_T, protocol?: TapoProtocolType): Promise<Json_T>;
     get_device_info(protocol?: TapoProtocolType): Promise<TapoDeviceInfo>;
     get_energy_usage(protocol?: TapoProtocolType): Promise<TapoEnergyUsage>;

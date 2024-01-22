@@ -30,6 +30,7 @@ const nodeInit = (RED) => {
             node.version = (_k = config === null || config === void 0 ? void 0 : config.version) !== null && _k !== void 0 ? _k : tapo_klap_protocol_1.TapoProtocolType.AUTO;
             node.verbose = false;
             node.device = null;
+            node.terminal_random = false;
         }
         catch (error) {
             node.status({ fill: "red", shape: "ring", text: "resources.message.error" });
@@ -49,10 +50,10 @@ const nodeInit = (RED) => {
                     const tapo_cred = new tapo_klap_protocol_1.AuthCredential(config.email, config.password);
                     // Create the device object depending on the ip option
                     if (config.searchMode === "ip") {
-                        response.device = await new tapo_klap_protocol_1.TapoDevice().get_device_by_IP(tapo_cred, config.deviceIp);
+                        response.device = await new tapo_klap_protocol_1.TapoDevice(config.terminal_random).get_device_by_IP(tapo_cred, config.deviceIp);
                     }
                     else {
-                        response.device = await new tapo_klap_protocol_1.TapoDevice().get_device_by_alias(tapo_cred, config.deviceAlias, config.deviceIpRange);
+                        response.device = await new tapo_klap_protocol_1.TapoDevice(config.terminal_random).get_device_by_alias(tapo_cred, config.deviceAlias, config.deviceIpRange);
                     }
                     // Update the config device
                     config.device = response.device;
@@ -176,7 +177,7 @@ const nodeInit = (RED) => {
             }
         }
         node.on('input', async (msg) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
             try {
                 // Prepare config information 
                 let config = {
@@ -189,6 +190,7 @@ const nodeInit = (RED) => {
                     command: (_p = (_o = msg === null || msg === void 0 ? void 0 : msg.config) === null || _o === void 0 ? void 0 : _o.command) !== null && _p !== void 0 ? _p : node.command,
                     version: (_r = (_q = msg === null || msg === void 0 ? void 0 : msg.config) === null || _q === void 0 ? void 0 : _q.version) !== null && _r !== void 0 ? _r : node.version,
                     verbose: (_t = (_s = msg === null || msg === void 0 ? void 0 : msg.config) === null || _s === void 0 ? void 0 : _s.verbose) !== null && _t !== void 0 ? _t : node.verbose,
+                    terminal_random: (_v = (_u = msg === null || msg === void 0 ? void 0 : msg.config) === null || _u === void 0 ? void 0 : _u.terminal_random) !== null && _v !== void 0 ? _v : node.terminal_random,
                     device: node.device
                 };
                 // Print config in the log

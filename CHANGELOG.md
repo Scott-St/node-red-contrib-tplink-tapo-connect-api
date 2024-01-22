@@ -6,7 +6,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
  
-## [0.4.5] - 2023-12-21
+## [0.4.6] - 2024-01-23
+  
+Minor changes on README. CHANGELOG also added. No functional changes
+ 
+### Added
+
+- [tapo_klap_protocol.js](https://github.com/mbserran/node-red-contrib-tapo-new-api/blob/master/src/nodes/tapo_klap_protocol.ts)
+  MINOR `terminal_uuid` included in klap calls and `TapoDevice` handler includes possibility to call with a random uuid.
+
+- New `es-ES` language support included
+
+### Changed
+ 
+### Fixed
+
+## [0.4.5] - 2024-01-21
   
 Minor changes on README. CHANGELOG also added. No functional changes
  
@@ -19,7 +34,7 @@ Minor changes on README. CHANGELOG also added. No functional changes
  
 ### Fixed
 
-## [0.4.1] - 2023-12-20
+## [0.4.1] - 2024-01-20
   
 Help description added to the node and accessible from Node-RED.
  
@@ -33,7 +48,7 @@ Help description added to the node and accessible from Node-RED.
 ### Fixed
  
  
-## [0.4.0] - 2017-12-19
+## [0.4.0] - 2024-01-19
  
 Fully functional version. Complete set of features added to control Tapo devices with both protocols.
 Help not yet included in the node.

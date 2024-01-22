@@ -18,6 +18,7 @@ const TP_SESSION_COOKIE_NAME = "TP_SESSIONID";
 const TP_TEST_USER = "test@tp-link.net";
 const TP_TEST_PASSWORD = "test";
 const CLOUD_URL = "https://eu-wap.tplinkcloud.com";
+const MAX_RETRIES_GUESS = 18;
 // Constants for supported Energy devices
 exports.supportEnergyUsage = ["P110", "P115"];
 // Constants for Error 
@@ -26,6 +27,7 @@ var ErrorCode;
     // ----------GENERAL ERROR (1-99)-------------------
     ErrorCode[ErrorCode["ERROR_AXIOS_ERROR"] = 1] = "ERROR_AXIOS_ERROR";
     ErrorCode[ErrorCode["ERROR_TAPRES_JSON_INVALID"] = 2] = "ERROR_TAPRES_JSON_INVALID";
+    ErrorCode[ErrorCode["ERROR_AXIOS_FORBID"] = 3] = "ERROR_AXIOS_FORBID";
     ErrorCode[ErrorCode["GENERIC_ERROR"] = 99] = "GENERIC_ERROR";
     // ----------ENCRIPTION ERROR (101-199)-------------
     ErrorCode[ErrorCode["ERROR_KL_ENCRYPT_FMT"] = 101] = "ERROR_KL_ENCRYPT_FMT";
@@ -104,7 +106,7 @@ exports.AuthCredential = AuthCredential;
 // Class for TapoClient - connection to every Tapo device
 class TapoClient {
     // Constructor to initialize the class
-    constructor(auth_credential, url, protocol, http_session) {
+    constructor(auth_credential, url, protocol, http_session, terminal_random) {
         this._auth_credential = auth_credential;
         let myURL = new URL("http:\\example.com");
         try {
@@ -120,6 +122,7 @@ class TapoClient {
         this._url = myURL.href;
         this._http_session = (typeof (http_session) !== undefined ? http_session : null);
         this._protocol = (typeof (protocol) === undefined ? null : protocol);
+        this._terminal_random = ((typeof (terminal_random) == 'undefined') ? false : terminal_random);
         // Create the list of functions
         this.actions = { 'list_methods': () => { return this.list_methods(); },
             'perform_handshake': (protocol) => { return this.perform_handshake(protocol); },
@@ -174,10 +177,11 @@ class TapoClient {
             try {
                 // Set PASSTHROGH and get the components
                 console.debug("Set protocol to PASSTHROUGH");
-                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._http_session);
-                const resp = await this.get_component_negotiation(proto);
+                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                const resp = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
             }
             catch (error) {
+                this.close();
                 throw new TapoError('Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
             }
             // Return the final protocol
@@ -188,10 +192,11 @@ class TapoClient {
             try {
                 // Set KLAP and get the components
                 console.debug("Set protocol to KLAP");
-                this._protocol = new KlapProtocol(this._auth_credential, this._url, this._http_session);
-                const resp = await this.get_component_negotiation(proto);
+                this._protocol = new KlapProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                const resp = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
             }
             catch (error) {
+                this.close();
                 throw new TapoError('Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
             }
             // Return the final protocol
@@ -202,18 +207,20 @@ class TapoClient {
             try {
                 // Set Passthrough and get the components
                 console.debug("Trying first with PassthroughProtocol");
-                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._http_session);
-                const resp = await this.get_component_negotiation(TapoProtocolType.PASSTHROUGH);
+                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                const resp = await this.get_component_negotiation(TapoProtocolType.PASSTHROUGH, MAX_RETRIES_GUESS);
             }
             catch (err) {
                 // Try to fallback to KLAP
+                this.close();
                 try {
                     // Set KLAP and get the components
                     console.debug("Default protocol not working. Fallback to KLAP");
-                    this._protocol = new KlapProtocol(this._auth_credential, this._url, this._http_session);
-                    const resp_klap = await this.get_component_negotiation(TapoProtocolType.KLAP);
+                    this._protocol = new KlapProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                    const resp_klap = await this.get_component_negotiation(TapoProtocolType.KLAP, MAX_RETRIES_GUESS);
                 }
                 catch (error) {
+                    this.close();
                     throw new TapoError('Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
                 }
             }
@@ -253,9 +260,9 @@ class TapoClient {
         });
     }
     // Public methods to execute different kind of requests
-    async get_component_negotiation(protocol) {
+    async get_component_negotiation(protocol, retry) {
         const proto = (typeof (protocol) == 'undefined' ? TapoProtocolType.AUTO : protocol);
-        return new Components().try_from_json(await this.execute_raw_request(new TapoRequest().component_negotiation(), proto));
+        return new Components().try_from_json(await this.execute_raw_request(new TapoRequest().component_negotiation(), proto, retry));
     }
     async get_device_info(protocol) {
         const proto = (typeof (protocol) == 'undefined' ? TapoProtocolType.AUTO : protocol);
@@ -672,7 +679,12 @@ class TapoError {
     }
     //Public method to transfer Axios to Tapo
     axios_to_tapo(axios) {
-        this.error_code = ErrorCode.ERROR_AXIOS_ERROR;
+        if (axios.code == "ERR_BAD_REQUEST") {
+            this.error_code = ErrorCode.ERROR_AXIOS_FORBID;
+        }
+        else {
+            this.error_code = ErrorCode.ERROR_AXIOS_ERROR;
+        }
         this.message = axios.code + ' - ' + axios.message;
         this.agent = axios.name;
         this.cause = { message: this.message, error_code: this.error_code, agent: this.agent };
@@ -690,7 +702,7 @@ exports.TapoError = TapoError;
 // Class for Klap Protocol definition
 class KlapProtocol extends TapoProtocol {
     // Constructor to initialize the class
-    constructor(auth_credential, url, http_session) {
+    constructor(auth_credential, url, http_session, terminal_random) {
         super();
         this._base_url = url;
         this._host = (new URL(this._base_url)).hostname;
@@ -701,6 +713,8 @@ class KlapProtocol extends TapoProtocol {
         this._http_session = (typeof (http_session) == 'undefined' ? axios_1.default.create({ baseURL: url }) : http_session);
         this._session = null;
         this._protocol_type = TapoProtocolType.KLAP;
+        this._terminal_random = ((typeof (terminal_random) == 'undefined') ? false : terminal_random);
+        this._request_id_generator = new SnowflakeId(1, 1);
         // Set the properties to false to avoid any change or access once created
         Object.defineProperty(this, '_auth_credential', { enumerable: false });
         Object.defineProperty(this, '_http_session', { enumerable: false });
@@ -786,7 +800,8 @@ class KlapProtocol extends TapoProtocol {
             }
             else {
                 // Define a new KlapSession object for the session and retrieve parameters - Session_id, Timeout, remote_seed and server_hash
-                this._session = new KlapSession(this._jar[TP_SESSION_COOKIE_NAME], parseInt(this._jar["TIMEOUT"], 10));
+                const terminal_uuid = (this._terminal_random ? node_crypto_1.webcrypto.randomUUID() : (0, uuid_1.v4)());
+                this._session = new KlapSession(this._jar[TP_SESSION_COOKIE_NAME], parseInt(this._jar["TIMEOUT"], 10), false, terminal_uuid);
                 const remote_seed = value[1].subarray(0, 16);
                 const server_hash = value[1].subarray(16);
                 // Information for debugging
@@ -892,7 +907,7 @@ class KlapProtocol extends TapoProtocol {
             });
         }
         // Convert request into a JSON string and encrypt request
-        request.with_terminal_uuid((0, uuid_1.v4)()).with_request_time_millis(Math.round(new Date().getTime()));
+        request.with_request_id(await this._request_id_generator.generate_id()).with_terminal_uuid(this._session.terminal_uuid).with_request_time_millis(Math.round(new Date().getTime()));
         const raw_request = JSON.stringify(request);
         const [payload, seq] = this._session.chiper.encrypt(raw_request);
         const url = this._base_url + '/request';
@@ -919,6 +934,8 @@ class KlapProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
+            if (error.cause.error_code == 3)
+                this._session.invalidate();
             throw new TapoError("Request error - Device " + this._host + " with seq " + seq + " - Request: " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this._send_request.name);
         });
         // Return response
@@ -935,12 +952,13 @@ exports.KlapProtocol = KlapProtocol;
 // Class for Klap Sessions
 class KlapSession extends TapoSession {
     // Constructor to initialize the class
-    constructor(session, timeout, expire, hsk, chip) {
+    constructor(session, timeout, expire, terminal, hsk, chip) {
         super();
         this.chiper = (typeof (chip) == 'undefined' ? null : chip);
         this.session_id = session;
         this.expire_at = (((typeof (expire) == 'undefined') || (!expire)) ? new Date().getTime() + timeout * 1000 : timeout);
         this.handshake_complete = (((typeof (hsk) == 'undefined') || (!hsk)) ? false : hsk);
+        this.terminal_uuid = (typeof (terminal) == 'undefined' ? null : terminal);
         // Set the properties to false to avoid any change or access once created
         Object.defineProperty(this, 'session_id', { enumerable: false });
     }
@@ -1035,7 +1053,7 @@ exports.KlapChiper = KlapChiper;
 // Class for Passthrough Protocol definition
 class PassthroughProtocol extends TapoProtocol {
     // Constructor to initialize the class
-    constructor(auth_credential, url, http_session) {
+    constructor(auth_credential, url, http_session, terminal_random) {
         super();
         this._base_url = url;
         this._host = (new URL(this._base_url)).hostname;
@@ -1044,6 +1062,7 @@ class PassthroughProtocol extends TapoProtocol {
         this._auth_credential = auth_credential;
         this._request_id_generator = new SnowflakeId(1, 1);
         this._protocol_type = TapoProtocolType.PASSTHROUGH;
+        this._terminal_random = ((typeof (terminal_random) == 'undefined') ? false : terminal_random);
         // Set the properties to false to avoid any change or access once created
         Object.defineProperty(this, '_auth_credential', { enumerable: false });
         Object.defineProperty(this, '_http_session', { enumerable: false });
@@ -1131,7 +1150,7 @@ class PassthroughProtocol extends TapoProtocol {
                 console.debug("Handshake got cookies: ..." + JSON.stringify(this._jar));
                 const session_id = this._jar[TP_SESSION_COOKIE_NAME];
                 const timeout = parseInt(this._jar["TIMEOUT"], 10);
-                const terminal_uuid = (0, uuid_1.v4)();
+                const terminal_uuid = (this._terminal_random ? node_crypto_1.webcrypto.randomUUID() : (0, uuid_1.v4)());
                 session = new Session(session_id, timeout, false, req_url, terminal_uuid, key_pair);
                 // Get the device key and complete the session if everything is ok
                 console.debug("Decoding handshake key ...");
@@ -1251,6 +1270,8 @@ class PassthroughProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
+            if (error.cause.error_code == 3)
+                this._session.invalidate();
             throw new TapoError("Device responded with " + error.message + " to request " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this.send.name);
         });
         // Return response
@@ -1439,8 +1460,9 @@ var TapoDevicesType;
 // Class for Base Tapo Device
 class TapoDevice {
     // Constructor to initialize the class
-    constructor(api) {
+    constructor(terminal_random, api) {
         this._api = api;
+        this.terminal_random = terminal_random;
     }
     // Methods to be used by the class
     async raw_command(method, params, protocol) {
@@ -1486,7 +1508,7 @@ class TapoDevice {
         // Update the ip of the device
         this.ip = ip;
         // Create the client
-        this._api = new TapoClient(auth_credential, this.ip, proto);
+        this._api = new TapoClient(auth_credential, this.ip, proto, undefined, this.terminal_random);
         // Return device
         return this;
     }
@@ -1557,7 +1579,7 @@ class TapoDevice {
     // Define private methods used by the class
     async augment_TapoDevice(deviceInfo) {
         // Get an instance to a new Tapo device and copy all info in deviceInfo
-        const device = new TapoDevice();
+        const device = new TapoDevice(this.terminal_random);
         try {
             for (const [key, value] of Object.entries(deviceInfo)) {
                 device[key] = value;
