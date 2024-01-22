@@ -74,7 +74,7 @@ You can always override the node command configuration by means of the following
 
 ## Pre-requisites
 
-The node-red-contrib-tapo-new-api requires `node.js v15.0.0 or higher` to be installed.
+The node-red-contrib-tapo-new-api requires `Node.js v15.0.0 or higher` to be installed.
 
 ## Install
 
