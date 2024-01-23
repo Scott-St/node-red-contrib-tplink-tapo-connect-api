@@ -844,7 +844,7 @@ class KlapProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
-            throw new TapoError("Handshake1 error -" + error.message, error, ErrorCode.ERROR_aPH1_bSP_HSK_ERROR, this.perform_handshake1.name);
+            throw new TapoError("Handshake1 error - " + error.message, error, ErrorCode.ERROR_aPH1_bSP_HSK_ERROR, this.perform_handshake1.name);
         });
         return seeds;
     }
@@ -1208,7 +1208,7 @@ class PassthroughProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
-            throw new TapoError("Login error - " + error.message, error, ErrorCode.ERROR_aLG_bPH_HSK_ERROR, this._login_with_version.name);
+            throw new TapoError("Handshake error - " + error.message, error, ErrorCode.ERROR_aLG_bPH_HSK_ERROR, this._login_with_version.name);
         });
         return session;
     }

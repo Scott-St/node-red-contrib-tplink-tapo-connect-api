@@ -52,6 +52,21 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
     This node command provides the ability to get the device infomation of tapo smart plugs. Models that can monitor energy acquire energy information.
 
     `"output: msg.payload.tapoDeviceInfo, msg.payload?.tapoEnergyUsage(P110 only)"` will provide the device information and usage (if device can measure energy).
+    
+- **components**
+
+    ![node-red-contrib-tapo-new-api](figs/node-components.png)
+
+    This node command provides the ability to get the device components information.
+
+- **command**
+
+    ![node-red-contrib-tapo-new-api](figs/node-command.png)
+
+    This node command provides the ability to set a customized request to the device by input `"msg.payload"` (TapoRequest object):
+
+    `{"method": string, "params": {"key": value, ...}}` should be provided as valid request. 
+
 
 ## Node configuration by message (`msg`)
 

@@ -376,9 +376,10 @@ const nodeInit: NodeInitializer = (RED): void => {
                              
                     // Check verbose to remove track
                     if (!config.verbose) {
-                        if (typeof(msg.payload.errorInf["track"]) != 'undefined') delete msg.payload.errorInf["track"];
+                    //    if (typeof(msg.payload.errorInf["track"]) != 'undefined') delete msg.payload.errorInf["track"];
+                        if (typeof(ret.errorInf["cause"]) != 'undefined') msg.payload.errorInf = ret.errorInf["cause"];
                     }
-                    node.status({ fill: "red", shape: "ring", text: msg.payload.errorInf.message });
+                    node.status({ fill: "red", shape: "ring", text: msg.payload.errorInf.message.split("-")[0] });
                 }
 
             } catch (error) {
