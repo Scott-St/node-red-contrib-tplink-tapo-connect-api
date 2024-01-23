@@ -1,12 +1,12 @@
 import { NodeInitializer, Node, NodeDef } from "node-red";
 
 // New tapo api
-import { AuthCredential, TapoResuls, TapoDevice, TapoDeviceInfo, TapoEnergyUsage, supportEnergyUsage, TapoProtocolType } from "./tapo_klap_protocol";
+import { AuthCredential, TapoResuls, TapoDevice, TapoDeviceInfo, TapoEnergyUsage, supportEnergyUsage, TapoProtocolType, TapoRequest, Components } from "./tapo_klap_protocol";
 
 // Type to be used in tapo actions
 namespace tapo_actions {
     export type search_mode_type = "ip" | "alias";
-    export type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
+    export type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness" | "components" | "command";
     export type config_base = {
         email: string;
         password: string;
@@ -159,7 +159,7 @@ const nodeInit: NodeInitializer = (RED): void => {
         }
 
         // Action: Toggle - Change device status
-        async function toggle_device(device: TapoDevice, proto: TapoProtocolType, status: boolean): Promise<TapoResuls> {
+        async function toggle_device(device: TapoDevice, proto: TapoProtocolType): Promise<TapoResuls> {
 
             // Process parameters
             let response: TapoResuls = { result: false };
@@ -192,7 +192,7 @@ const nodeInit: NodeInitializer = (RED): void => {
             // Process parameters
             let response: TapoResuls = { result: false };
             
-            // Try to set device info with config  
+            // Try to set color of device 
             try {
 
                 // Set device color as requested
@@ -221,11 +221,56 @@ const nodeInit: NodeInitializer = (RED): void => {
             // Process parameters
             let response: TapoResuls = { result: false };
             
-            // Try to set device info with config  
+            // Try to set device brightness 
             try {
 
                 // Set device color as requested
                 const answer = await device.set_brightness_device(level, proto);
+
+                // Return positive result
+                response.result = true;
+                response.device = device;
+                return response;
+
+            } catch (error: any) {
+                return { result: false, errorInf: error, device: null };
+            }            
+        }
+
+        // Action: Components - Get components of device
+        async function get_component(device: TapoDevice, proto: TapoProtocolType): Promise<TapoResuls> {
+
+            // Process parameters
+            let response: TapoResuls = { result: false };
+            
+            // Try to get components from device 
+            try {
+
+                // Set device color as requested
+                const answer: Components = await device.get_component_negotiation(proto);
+                response.tapoComponents = answer;
+
+                // Return positive result
+                response.result = true;
+                response.device = device;
+                return response;
+
+            } catch (error: any) {
+                return { result: false, errorInf: error, device: null };
+            }            
+        }
+
+        // Action: Command - Send command with custom request
+        async function send_request(device: TapoDevice, proto: TapoProtocolType, request: TapoRequest): Promise<TapoResuls> {
+
+            // Process parameters
+            let response: TapoResuls = { result: false };
+            
+            // Try to send request to device 
+            try {
+
+                // Set device color as requested
+                const answer = await device.send_request(request, proto);
 
                 // Return positive result
                 response.result = true;
@@ -285,13 +330,19 @@ const nodeInit: NodeInitializer = (RED): void => {
                             ret = await set_onoff_device(ret.device, config.version, false);
                         } else if (config.command == "toggle") {
                             // Toggle device
-                            ret = await toggle_device(ret.device, config.version, false);
+                            ret = await toggle_device(ret.device, config.version);
                         } else if (config.command == "color") {
                             // Set color of device depending on msg.payload
                             ret = await set_color_device(ret.device, config.version, msg.payload.toString());
                         } else if (config.command == "brightness") {
                             // Set brightness of device depending on msg.payload
                             ret = await set_brightness_device(ret.device, config.version, msg.payload);
+                        } else if (config.command == "components") {
+                            // Set brightness of device depending on msg.payload
+                            ret = await get_component(ret.device, config.version);
+                        } else if (config.command == "command") {
+                            // Set brightness of device depending on msg.payload
+                            ret = await send_request(ret.device, config.version, msg.payload);
                         }
                     }
 

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlugDeviceState = exports.PlugDevice = exports.TapoDevice = exports.TapoDevicesType = exports.SnowflakeId = exports.Chiper = exports.Session = exports.PassthroughProtocol = exports.KlapChiper = exports.KlapSession = exports.KlapProtocol = exports.TapoError = exports.TapoChiper = exports.TapoSession = exports.TapoProtocol = exports.ColorParams = exports.Components = exports.ControlChildParams = exports.MultipleRequestParams = exports.PaginationParams = exports.SecurePassthroughParams = exports.LoginDeviceParamsV2 = exports.LoginDeviceParams = exports.HandshakeParams = exports.TapoResponse = exports.TapoRequest = exports.TapoClient = exports.AuthCredential = exports.TapoProtocolType = exports.ErrorCode = exports.supportEnergyUsage = void 0;
+exports.TapoDevice = exports.TapoDevicesType = exports.SnowflakeId = exports.Chiper = exports.Session = exports.PassthroughProtocol = exports.KlapChiper = exports.KlapSession = exports.KlapProtocol = exports.TapoError = exports.TapoChiper = exports.TapoSession = exports.TapoProtocol = exports.ColorParams = exports.Components = exports.ControlChildParams = exports.MultipleRequestParams = exports.PaginationParams = exports.SecurePassthroughParams = exports.LoginDeviceParamsV2 = exports.LoginDeviceParams = exports.HandshakeParams = exports.TapoResponse = exports.TapoRequest = exports.TapoClient = exports.AuthCredential = exports.TapoProtocolType = exports.ErrorCode = exports.supportEnergyUsage = void 0;
 // Import modules
 const node_util_1 = require("node:util");
 const node_crypto_1 = require("node:crypto");
@@ -1494,6 +1494,11 @@ class TapoDevice {
         const result = this._api.set_brightness_device(level, proto);
         return result;
     }
+    async send_request(request, protocol) {
+        const proto = (typeof (protocol) == 'undefined' ? TapoProtocolType.AUTO : protocol);
+        const result = this._api.send_request(request, proto);
+        return result;
+    }
     async get_state_as_json(protocol) {
         const proto = (typeof (protocol) == 'undefined' ? TapoProtocolType.AUTO : protocol);
         return await this._api.get_device_info(proto);
@@ -1623,27 +1628,4 @@ class TapoDevice {
     }
 }
 exports.TapoDevice = TapoDevice;
-// Class for Plug Device
-class PlugDevice extends TapoDevice {
-    // Additional methods to basic class
-    async get_state() {
-        return;
-    }
-}
-exports.PlugDevice = PlugDevice;
-class PlugDeviceState {
-    // Public methods available
-    async try_from_json(kwargs) {
-        const state = await new PlugDeviceState();
-        state.info = 'DeviceInfo';
-        state.device_on = kwargs.device_on || false;
-        state.power_protection_status = kwargs.power_protection_status;
-        state.on_time = kwargs.on_time;
-        state.auto_off = (kwargs.auto_off_status == "on");
-        state.auto_off_time_remaining = kwargs.auto_off_remain_time;
-        state.default_states = kwargs.default_states;
-        return state;
-    }
-}
-exports.PlugDeviceState = PlugDeviceState;
 //# sourceMappingURL=tapo_klap_protocol.js.map

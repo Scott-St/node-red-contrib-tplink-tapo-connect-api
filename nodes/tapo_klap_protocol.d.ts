@@ -393,8 +393,9 @@ export declare class TapoDevice {
     turn_onoff_device(status: boolean, protocol?: TapoProtocolType): Promise<Json_T>;
     set_color_device(color: string, protocol?: TapoProtocolType): Promise<Json_T>;
     set_brightness_device(level: number, protocol?: TapoProtocolType): Promise<Json_T>;
+    send_request(request: TapoRequest, protocol?: TapoProtocolType): Promise<Json_T>;
     get_state_as_json(protocol?: TapoProtocolType): Promise<Json_T>;
-    get_component_negotiation(protocol?: TapoProtocolType): Promise<Json_T>;
+    get_component_negotiation(protocol?: TapoProtocolType): Promise<Components>;
     get_device_by_IP(auth_credential: AuthCredential, ip: string, protocol?: TapoProtocol): Promise<TapoDevice>;
     get_device_by_alias(auth_credential: AuthCredential, alias: string, range_ip?: string): Promise<TapoDevice>;
     cloud_login(auth_credential: AuthCredential): Promise<string>;
@@ -409,6 +410,7 @@ export type TapoResuls = {
     result: boolean;
     tapoDeviceInfo?: TapoDeviceInfo;
     tapoEnergyUsage?: TapoDeviceInfo | undefined;
+    tapoComponents?: Components | undefined;
     errorInf?: Error;
     device?: TapoDevice;
 };
@@ -444,42 +446,3 @@ export type TapoDeviceInfo = {
     lang: string;
 };
 export type TapoEnergyUsage = TapoDeviceInfo;
-export type TapoVideoImage = {
-    uri: string;
-    length: number;
-    uriExpiresAt: number;
-};
-export type TapoVideo = {
-    uri: string;
-    duration: number;
-    m3u8: string;
-    startTimestamp: number;
-    uriExpiresAt: number;
-};
-export type TapoVideoPageItem = {
-    uuid: string;
-    video: TapoVideo[];
-    image: TapoVideoImage[];
-    createdTime: number;
-    eventLocalTime: string;
-};
-export type TapoVideoList = {
-    deviceId: string;
-    total: number;
-    page: number;
-    pageSize: number;
-    index: TapoVideoPageItem[];
-};
-export declare class PlugDevice extends TapoDevice {
-    get_state(): Promise<PlugDeviceState>;
-}
-export declare class PlugDeviceState {
-    info: string;
-    device_on: boolean;
-    on_time: number;
-    power_protection_status: string;
-    default_states: object;
-    auto_off: boolean;
-    auto_off_time_remaining: number;
-    try_from_json(kwargs: Json_T): Promise<PlugDeviceState>;
-}

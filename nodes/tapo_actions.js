@@ -114,7 +114,7 @@ const nodeInit = (RED) => {
             }
         }
         // Action: Toggle - Change device status
-        async function toggle_device(device, proto, status) {
+        async function toggle_device(device, proto) {
             // Process parameters
             let response = { result: false };
             // Try to get Device Info with config  
@@ -139,7 +139,7 @@ const nodeInit = (RED) => {
         async function set_color_device(device, proto, color) {
             // Process parameters
             let response = { result: false };
-            // Try to set device info with config  
+            // Try to set color of device 
             try {
                 // Set device color as requested
                 const answer = await device.set_color_device(color, proto);
@@ -163,10 +163,45 @@ const nodeInit = (RED) => {
         async function set_brightness_device(device, proto, level) {
             // Process parameters
             let response = { result: false };
-            // Try to set device info with config  
+            // Try to set device brightness 
             try {
                 // Set device color as requested
                 const answer = await device.set_brightness_device(level, proto);
+                // Return positive result
+                response.result = true;
+                response.device = device;
+                return response;
+            }
+            catch (error) {
+                return { result: false, errorInf: error, device: null };
+            }
+        }
+        // Action: Components - Get components of device
+        async function get_component(device, proto) {
+            // Process parameters
+            let response = { result: false };
+            // Try to get components from device 
+            try {
+                // Set device color as requested
+                const answer = await device.get_component_negotiation(proto);
+                response.tapoComponents = answer;
+                // Return positive result
+                response.result = true;
+                response.device = device;
+                return response;
+            }
+            catch (error) {
+                return { result: false, errorInf: error, device: null };
+            }
+        }
+        // Action: Command - Send command with custom request
+        async function send_request(device, proto, request) {
+            // Process parameters
+            let response = { result: false };
+            // Try to send request to device 
+            try {
+                // Set device color as requested
+                const answer = await device.send_request(request, proto);
                 // Return positive result
                 response.result = true;
                 response.device = device;
@@ -223,7 +258,7 @@ const nodeInit = (RED) => {
                         }
                         else if (config.command == "toggle") {
                             // Toggle device
-                            ret = await toggle_device(ret.device, config.version, false);
+                            ret = await toggle_device(ret.device, config.version);
                         }
                         else if (config.command == "color") {
                             // Set color of device depending on msg.payload
@@ -232,6 +267,14 @@ const nodeInit = (RED) => {
                         else if (config.command == "brightness") {
                             // Set brightness of device depending on msg.payload
                             ret = await set_brightness_device(ret.device, config.version, msg.payload);
+                        }
+                        else if (config.command == "components") {
+                            // Set brightness of device depending on msg.payload
+                            ret = await get_component(ret.device, config.version);
+                        }
+                        else if (config.command == "command") {
+                            // Set brightness of device depending on msg.payload
+                            ret = await send_request(ret.device, config.version, msg.payload);
                         }
                     }
                     // Update the client device in the node

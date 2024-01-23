@@ -25,7 +25,9 @@
             "off": "icon-turn-off.png",
             "toggle": "icon-toggle.png",
             "color": "icon-colour.png",
-            "brightness": "icon-brightness.png"
+            "brightness": "icon-brightness.png",
+            "components": "fa-solid fa-gears",
+            "command": "icon-command.png",
         }
         const conf = {
             category: 'TAPO tplink',
@@ -149,6 +151,8 @@
                 <option value="toggle" data-i18n="resources.labels.command.toggle"></option>
                 <option value="color" data-i18n="resources.labels.command.color"></option>
                 <option value="brightness" data-i18n="resources.labels.command.brightness"></option>
+                <option value="components" data-i18n="resources.labels.command.components"></option>
+                <option value="command" data-i18n="resources.labels.command.command"></option>
             </select>
             <input type="hidden" id="node-input-command">
         </div>
@@ -203,7 +207,7 @@
         <dl class="message-properties">
             <dt class="optional">command <span class="property-type">string</span></dt>
             <dd> If set this property overrides the one specified in the configuration node. It specifies the behaviour of this instance of <b>actions</b> button.</dd>
-            <dd> It will be an string with one of the following values <code>type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";</code></dd>
+            <dd> It will be an string with one of the following values <code>type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness" | "components" | "command";</code></dd>
         </dl>
         <dl class="message-properties">
             <dt class="optional">version <span class="property-type">number</span></dt>
@@ -282,6 +286,10 @@
             <dt class="optional">errorInf <span class="property-type">object</span></dt>
             <dd> Error object with the following properties:</dd>
             <dd>   <code>{error_code: code of error, message: error description, agent: internal function failing, cause: root cause, track: tree of errors}</code></dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">device <span class="property-type">object</span></dt>
+            <dd> Device handler created / used in the node. Usefull to link with another node connected to same device.</dd>
         </dl>
     </dl>
 

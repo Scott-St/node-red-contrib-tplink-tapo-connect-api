@@ -30,6 +30,8 @@
                 "toggle": "TOGGLE (Cambia)",
                 "color": "COLOR (Ajusta color)",
                 "brightness": "BRIGHT (Ajusta brillo)",
+                "components": "COMPONENTS (Obtiene componentes)",
+                "command": "COMMAND (Comando personalizado)",
                 "description": "Selecciona la funcion del boton"
             }
         },

@@ -58,7 +58,7 @@ Unofficial node-RED node for connecting to TP-Link Tapo devices with new interfa
 You can always override the node command configuration by means of the following message properties:
   - `"msg.config.command"` takes an string with one of the following valid command options
     ```typescript
-    type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
+    type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness" | "components" | "command";
     ```
   - `"msg.config.version"` takes a number indicating the protocol 
   
@@ -138,7 +138,7 @@ npm install node-red-contrib-tapo-new-api
 
 ```typescript
 type search_mode_type = "ip" | "alias";
-type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness";
+type command_type = "status" | "power" | "on" | "off" | "toggle" | "color" | "brightness" | "components" | "command";
 
 type config {
     email: string;
@@ -149,10 +149,11 @@ type config {
     searchMode : search_mode_type;
     command?: command_type; /* Default: "status" */
     version?: TapoProtocolType; /* Default: AUTO */
-    verbose?: boolean; /* Default: false */        
+    verbose?: boolean; /* Default: false */
+    terminal_random?: boolean; /* Default: false */ 
 }
 
-type payload: boolean /* power */ || string /* color */ || number /* brightness */
+type payload: boolean /* power */ || string /* color */ || number /* brightness */ || TapoRequest /* command */
 ```
 
 **[example1]**
@@ -200,7 +201,8 @@ The processing result is passed by msg.payload. It consists of an object that co
 type TapoResuls = {
     result: boolean; /* true: success, false: failure */
     tapoDeviceInfo?: TapoDeviceInfo; /* Tapo device infomation */
-    tapoEnergyUsage?: TapoDeviceInfo | undefined; /* Tapo device energy if compatible */ 
+    tapoEnergyUsage?: TapoDeviceInfo | undefined; /* Tapo device energy if compatible */
+    tapoComponents?: Components | undefined; /* Tapo device components information */
     errorInf?: Error;
 }
 ```

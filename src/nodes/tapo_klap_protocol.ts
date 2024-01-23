@@ -1760,12 +1760,18 @@ export class TapoDevice {
         return result;
     }
 
+    public async send_request(request: TapoRequest, protocol?: TapoProtocolType): Promise<Json_T> {
+        const proto: TapoProtocolType = (typeof(protocol) == 'undefined'?TapoProtocolType.AUTO:protocol);
+        const result: Json_T = this._api.send_request(request, proto);
+        return result;
+    }
+
     public async get_state_as_json(protocol?: TapoProtocolType): Promise<Json_T> {
         const proto: TapoProtocolType = (typeof(protocol) == 'undefined'?TapoProtocolType.AUTO:protocol);
         return await this._api.get_device_info(proto)
     }
 
-    public async get_component_negotiation(protocol?: TapoProtocolType): Promise<Json_T> {
+    public async get_component_negotiation(protocol?: TapoProtocolType): Promise<Components> {
         const proto: TapoProtocolType = (typeof(protocol) == 'undefined'?TapoProtocolType.AUTO:protocol);
         return await this._api.get_component_negotiation(proto)
     }
@@ -1913,6 +1919,7 @@ export type TapoResuls = {
     result: boolean;
     tapoDeviceInfo?: TapoDeviceInfo;
     tapoEnergyUsage?: TapoDeviceInfo | undefined;
+    tapoComponents?: Components | undefined;
     errorInf?: Error;
     device?: TapoDevice;
 }
@@ -1950,6 +1957,8 @@ export type TapoDeviceInfo = {
 }
 
 export type TapoEnergyUsage = TapoDeviceInfo;
+
+/*
 
 export type TapoVideoImage = {
     uri: string;
@@ -2014,3 +2023,5 @@ export class PlugDeviceState {
         return state;
     }
 }
+
+*/

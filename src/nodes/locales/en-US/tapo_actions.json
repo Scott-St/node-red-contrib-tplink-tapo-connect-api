@@ -30,6 +30,8 @@
                 "toggle": "TOGGLE (Switch)",
                 "color": "COLOR (Set color)",
                 "brightness": "BRIGHT (Set brightness)",
+                "components": "COMPONENTS (Get components)",
+                "command": "COMMAND (Custom request)",
                 "description": "select button function \"status, ON or OFF\""
             }
         },
