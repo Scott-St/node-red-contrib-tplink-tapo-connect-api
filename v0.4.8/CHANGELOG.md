@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
  
-## [0.4.8] - 2024-01-24
+## [0.4.9] - 2024-01-24
   
 New commands added to complete the set. Bug fixed for esporadic errors when connecting first time to device. Spanish locale lenguage added. Meaningfull non verbose errors.
  
