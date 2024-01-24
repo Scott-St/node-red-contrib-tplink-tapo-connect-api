@@ -265,6 +265,10 @@
             <dt class="optional">payload <span class="property-type">number</span></dt>
             <dd> If <code>msg.config.command = "brightness"</code> then this property sets the <code>brightness_level</code> property. It wil be truncated to a number between 0 to 100.</dd>
         </dl>
+        <dl class="message-properties">
+            <dt class="optional">payload <span class="property-type">object</span></dt>
+            <dd> If <code>msg.config.command = "command"</code> then this property sets the <code>{"method": string, "params": {"key": value, ...}}</code> request.</dd>
+        </dl>
     </dl>
 
     <h3>Outputs</h3>
@@ -281,6 +285,10 @@
         <dl class="message-properties">
             <dt class="optional">tapoEnergyUsage <span class="property-type">object</span></dt>
             <dd> In case the device can measure energy, this object will contain all the energy consumption information retrieved from the device.</dd>
+        </dl>
+        <dl class="message-properties">
+            <dt class="optional">tapoCommand <span class="property-type">object</span></dt>
+            <dd> In case the <code>command</code> has been used, this is the resulting object of that request.</dd>
         </dl>
         <dl class="message-properties">
             <dt class="optional">errorInf <span class="property-type">object</span></dt>

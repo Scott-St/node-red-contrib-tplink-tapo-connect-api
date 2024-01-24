@@ -64,6 +64,58 @@ export declare enum ErrorCode {
     ERROR_FUNC_DEV_TOKEN_EXPIRED = 9999,
     ERROR_FUNC_UNEXPECTED = 19999
 }
+export declare enum ErrorMsg {
+    ERROR_AXIOS_ERROR = "Axios error: ",
+    ERROR_TAPRES_JSON_INVALID = "Invalid JSON answer: ",
+    ERROR_AXIOS_FORBID = "Negotiation error: ",
+    GENERIC_ERROR = "General error: ",
+    ERROR_KL_ENCRYPT_FMT = "Encryption error: ",
+    ERROR_KL_ENCRYPT_IV_LENGTH = "Encryption error: ",
+    ERROR_CH_UNABLE_KEYS = "Encryption error: ",
+    ERROR_SNOW_WORKER_ID = "Encryption error: ",
+    ERROR_SNOW_DATA_CENTER_ID = "Encryption error: ",
+    ERROR_SNOW_INVALID_TIME_ID = "Encryption error: ",
+    ERROR_aSP_bAX_REQ_ERR = "Device comm error: ",
+    ERROR_aSP_bAX_REQ_FORBID = "Device comm rejected: ",
+    ERROR_aSP_bAX_INVALID_URL = "URL not valid: ",
+    ERROR_aSR_bSR_RET_ERR = "Instant retry error: ",
+    ERROR_aSR_bSR_MAX_RET = "Max retries reached: ",
+    ERROR_aSR_bSP_REQ_ERR = "Device request error: ",
+    ERROR_aSR_bSP_REJ = "Device comm rejected: ",
+    ERROR_aSR_DEV_FORBID = "Device comm rejected: ",
+    ERROR_aSR_DEV_GENERAL = "Device comm error: ",
+    ERROR_aPH2_bSP_HSK_ERROR = "Handshake error: ",
+    ERROR_aPH1_bSP_HSK_ERROR = "Handshake error: ",
+    ERROR_aPH2_bSP_HSK_REJ = "Handshare rejected: ",
+    ERROR_aPH_bSP_HSK_REJ = "Handshare rejected: ",
+    ERROR_aPH1_bSP_HSK_MISSMATCH = "Handshake error: ",
+    ERROR_aPH1_bSP_HSK_FORBID = "Handshare rejected: ",
+    ERROR_aPH_bSP_HSK_FORBID = "Handshare rejected: ",
+    ERROR_aPH_bPH1_HSK_ERROR = "Handshake error: ",
+    ERROR_aSR_bPH_HSK_ERROR = "Handshake error: ",
+    ERROR_aLG_bS_TOKEN_NOT_FOUND = "Handshake error: ",
+    ERROR_aLG_bPH_HSK_TIMEOUT = "Handshake timeout: ",
+    ERROR_aLG_bS_TOKEN_ERROR = "Handshake error: ",
+    ERROR_aLG_bPH_HSK_ERROR = "Handshake error: ",
+    ERROR_aGP_INCOMPLETE = "Protocol not detected: ",
+    ERROR_aGP_GUESS = "Protocol not detected: ",
+    ERROR_FUNC_GENERAL = "General functional error: ",
+    ERROR_CLOUD_CONN_REJ = "Cloud connection rejected: ",
+    ERROR_DEVICE_INFO = "Device comm error: ",
+    ERROR_CLOUD_NO_DEVICE_LIST = "Cloud empty list: ",
+    ERROR_ALIAS_NOT_FOUND = "Alias not found: ",
+    ERROR_FUNC_VALID_COLOR = "Color not valid: ",
+    ERROR_FUNC_TEMP_COLOR = "Color not valid: ",
+    ERROR_FUNC_HEX_COLOR = "Color not valid: ",
+    ERROR_FUNC_KEY_LENGTH = "Encryption error: ",
+    ERROR_FUNC_BAD_CREDENTIALS = "Bad credentials: ",
+    ERROR_FUNC_BAD_REQUEST = "Device request error: ",
+    ERROR_FUNC_BAD_JSON = "Invalid JSON answer: ",
+    ERROR_FUNC_WRONG_EMAIL = "Bad credentials: ",
+    ERROR_FUNC_CLOUD_TOKEN_EXPIRED = "Token expired: ",
+    ERROR_FUNC_DEV_TOKEN_EXPIRED = "Token expired: ",
+    ERROR_FUNC_UNEXPECTED = "Unexpected error: "
+}
 export declare enum TapoProtocolType {
     PASSTHROUGH = 1,
     KLAP = 2,
@@ -411,6 +463,7 @@ export type TapoResuls = {
     tapoDeviceInfo?: TapoDeviceInfo;
     tapoEnergyUsage?: TapoDeviceInfo | undefined;
     tapoComponents?: Components | undefined;
+    tapoCommand?: Json_T | undefined;
     errorInf?: Error;
     device?: TapoDevice;
 };

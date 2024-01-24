@@ -1,7 +1,7 @@
 import { NodeInitializer, Node, NodeDef } from "node-red";
 
 // New tapo api
-import { AuthCredential, TapoResuls, TapoDevice, TapoDeviceInfo, TapoEnergyUsage, supportEnergyUsage, TapoProtocolType, TapoRequest, Components } from "./tapo_klap_protocol";
+import { AuthCredential, TapoResuls, TapoDevice, TapoDeviceInfo, TapoEnergyUsage, supportEnergyUsage, TapoProtocolType, TapoRequest, Components, Json_T } from "./tapo_klap_protocol";
 
 // Type to be used in tapo actions
 namespace tapo_actions {
@@ -270,7 +270,8 @@ const nodeInit: NodeInitializer = (RED): void => {
             try {
 
                 // Set device color as requested
-                const answer = await device.send_request(request, proto);
+                const answer: Json_T = await device.send_request(request, proto);
+                response.tapoCommand = answer;
 
                 // Return positive result
                 response.result = true;
@@ -341,8 +342,10 @@ const nodeInit: NodeInitializer = (RED): void => {
                             // Set brightness of device depending on msg.payload
                             ret = await get_component(ret.device, config.version);
                         } else if (config.command == "command") {
+                            // Prepare the request with msg.payload components
+                            const request: TapoRequest = new TapoRequest(msg.payload?.method, msg.payload?.params);
                             // Set brightness of device depending on msg.payload
-                            ret = await send_request(ret.device, config.version, msg.payload);
+                            ret = await send_request(ret.device, config.version, request);
                         }
                     }
 
@@ -377,9 +380,12 @@ const nodeInit: NodeInitializer = (RED): void => {
                     // Check verbose to remove track
                     if (!config.verbose) {
                     //    if (typeof(msg.payload.errorInf["track"]) != 'undefined') delete msg.payload.errorInf["track"];
-                        if (typeof(ret.errorInf["cause"]) != 'undefined') msg.payload.errorInf = ret.errorInf["cause"];
+                        if (typeof(ret.errorInf["cause"]) != 'undefined') {
+                            ret.errorInf["cause"]["message"] = ret.errorInf["cause"]["message"].split(":")[0];
+                            msg.payload.errorInf = ret.errorInf["cause"];
+                        }
                     }
-                    node.status({ fill: "red", shape: "ring", text: msg.payload.errorInf.message.split("-")[0] });
+                    node.status({ fill: "red", shape: "ring", text: msg.payload.errorInf.message.split(":")[0] });
                 }
 
             } catch (error) {
