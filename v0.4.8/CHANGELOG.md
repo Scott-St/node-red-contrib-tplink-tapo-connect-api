@@ -6,15 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
  
-## [0.4.8] - 2024-01-23
+## [0.4.8] - 2024-01-24
   
-Minor changes on README. CHANGELOG also added. No functional changes
+New commands added to complete the set. Bug fixed for esporadic errors when connecting first time to device. Spanish locale lenguage added. Meaningfull non verbose errors.
  
 ### Added
 
 - [tapo_klap_protocol.js](https://github.com/mbserran/node-red-contrib-tapo-new-api/blob/master/src/nodes/tapo_klap_protocol.ts)
   MINOR `terminal_uuid` included in klap calls and `TapoDevice` handler includes possibility to call with a random uuid.
-  BUG   Initial sporadic `negotiation errors`solved. Now 99.99% of initial message results in proper protocol when `AUTO`. Also when protocol is manually selected.
+  BUG   Initial esporadic `negotiation errors`solved. Now 99.99% of initial message results in proper protocol when `AUTO`. Also when protocol is manually selected.
+  MINOR Error intial description separated by `:` to facilitate more meaningfull descriptions. Easy to use `split(":")[0]` and get only that part (non verbose).
 
 - [tapo_actions.js](https://github.com/mbserran/node-red-contrib-tapo-new-api/blob/master/src/nodes/tapo_actions.ts) 
   MAJOR Two more commands included: `components` to get device components in device object and `command` to send a customized request.

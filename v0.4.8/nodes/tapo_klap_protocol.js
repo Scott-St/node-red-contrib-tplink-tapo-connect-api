@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TapoDevice = exports.TapoDevicesType = exports.SnowflakeId = exports.Chiper = exports.Session = exports.PassthroughProtocol = exports.KlapChiper = exports.KlapSession = exports.KlapProtocol = exports.TapoError = exports.TapoChiper = exports.TapoSession = exports.TapoProtocol = exports.ColorParams = exports.Components = exports.ControlChildParams = exports.MultipleRequestParams = exports.PaginationParams = exports.SecurePassthroughParams = exports.LoginDeviceParamsV2 = exports.LoginDeviceParams = exports.HandshakeParams = exports.TapoResponse = exports.TapoRequest = exports.TapoClient = exports.AuthCredential = exports.TapoProtocolType = exports.ErrorCode = exports.supportEnergyUsage = void 0;
+exports.TapoDevice = exports.TapoDevicesType = exports.SnowflakeId = exports.Chiper = exports.Session = exports.PassthroughProtocol = exports.KlapChiper = exports.KlapSession = exports.KlapProtocol = exports.TapoError = exports.TapoChiper = exports.TapoSession = exports.TapoProtocol = exports.ColorParams = exports.Components = exports.ControlChildParams = exports.MultipleRequestParams = exports.PaginationParams = exports.SecurePassthroughParams = exports.LoginDeviceParamsV2 = exports.LoginDeviceParams = exports.HandshakeParams = exports.TapoResponse = exports.TapoRequest = exports.TapoClient = exports.AuthCredential = exports.TapoProtocolType = exports.ErrorMsg = exports.ErrorCode = exports.supportEnergyUsage = void 0;
 // Import modules
 const node_util_1 = require("node:util");
 const node_crypto_1 = require("node:crypto");
@@ -82,6 +82,66 @@ var ErrorCode;
     ErrorCode[ErrorCode["ERROR_FUNC_DEV_TOKEN_EXPIRED"] = 9999] = "ERROR_FUNC_DEV_TOKEN_EXPIRED";
     ErrorCode[ErrorCode["ERROR_FUNC_UNEXPECTED"] = 19999] = "ERROR_FUNC_UNEXPECTED";
 })(ErrorCode = exports.ErrorCode || (exports.ErrorCode = {}));
+var ErrorMsg;
+(function (ErrorMsg) {
+    // ----------GENERAL ERROR (1-99)-------------------
+    ErrorMsg["ERROR_AXIOS_ERROR"] = "Axios error: ";
+    ErrorMsg["ERROR_TAPRES_JSON_INVALID"] = "Invalid JSON answer: ";
+    ErrorMsg["ERROR_AXIOS_FORBID"] = "Negotiation error: ";
+    ErrorMsg["GENERIC_ERROR"] = "General error: ";
+    // ----------ENCRIPTION ERROR (101-199)-------------
+    ErrorMsg["ERROR_KL_ENCRYPT_FMT"] = "Encryption error: ";
+    ErrorMsg["ERROR_KL_ENCRYPT_IV_LENGTH"] = "Encryption error: ";
+    ErrorMsg["ERROR_CH_UNABLE_KEYS"] = "Encryption error: ";
+    ErrorMsg["ERROR_SNOW_WORKER_ID"] = "Encryption error: ";
+    ErrorMsg["ERROR_SNOW_DATA_CENTER_ID"] = "Encryption error: ";
+    ErrorMsg["ERROR_SNOW_INVALID_TIME_ID"] = "Encryption error: ";
+    // ----------SESSION POST ERROR (201-299)-----------
+    ErrorMsg["ERROR_aSP_bAX_REQ_ERR"] = "Device comm error: ";
+    ErrorMsg["ERROR_aSP_bAX_REQ_FORBID"] = "Device comm rejected: ";
+    ErrorMsg["ERROR_aSP_bAX_INVALID_URL"] = "URL not valid: ";
+    // ----------SEND REQUEST ERROR (301-399)-----------
+    ErrorMsg["ERROR_aSR_bSR_RET_ERR"] = "Instant retry error: ";
+    ErrorMsg["ERROR_aSR_bSR_MAX_RET"] = "Max retries reached: ";
+    ErrorMsg["ERROR_aSR_bSP_REQ_ERR"] = "Device request error: ";
+    ErrorMsg["ERROR_aSR_bSP_REJ"] = "Device comm rejected: ";
+    ErrorMsg["ERROR_aSR_DEV_FORBID"] = "Device comm rejected: ";
+    ErrorMsg["ERROR_aSR_DEV_GENERAL"] = "Device comm error: ";
+    // ----------HANDSHAKE ERROR (401-499)--------------
+    ErrorMsg["ERROR_aPH2_bSP_HSK_ERROR"] = "Handshake error: ";
+    ErrorMsg["ERROR_aPH1_bSP_HSK_ERROR"] = "Handshake error: ";
+    ErrorMsg["ERROR_aPH2_bSP_HSK_REJ"] = "Handshare rejected: ";
+    ErrorMsg["ERROR_aPH_bSP_HSK_REJ"] = "Handshare rejected: ";
+    ErrorMsg["ERROR_aPH1_bSP_HSK_MISSMATCH"] = "Handshake error: ";
+    ErrorMsg["ERROR_aPH1_bSP_HSK_FORBID"] = "Handshare rejected: ";
+    ErrorMsg["ERROR_aPH_bSP_HSK_FORBID"] = "Handshare rejected: ";
+    ErrorMsg["ERROR_aPH_bPH1_HSK_ERROR"] = "Handshake error: ";
+    ErrorMsg["ERROR_aSR_bPH_HSK_ERROR"] = "Handshake error: ";
+    ErrorMsg["ERROR_aLG_bS_TOKEN_NOT_FOUND"] = "Handshake error: ";
+    ErrorMsg["ERROR_aLG_bPH_HSK_TIMEOUT"] = "Handshake timeout: ";
+    ErrorMsg["ERROR_aLG_bS_TOKEN_ERROR"] = "Handshake error: ";
+    ErrorMsg["ERROR_aLG_bPH_HSK_ERROR"] = "Handshake error: ";
+    // ----------GUESS PROTOCOL (501-599)--------------
+    ErrorMsg["ERROR_aGP_INCOMPLETE"] = "Protocol not detected: ";
+    ErrorMsg["ERROR_aGP_GUESS"] = "Protocol not detected: ";
+    // ----------FUNCTIONAL ERROR----------------------
+    ErrorMsg["ERROR_FUNC_GENERAL"] = "General functional error: ";
+    ErrorMsg["ERROR_CLOUD_CONN_REJ"] = "Cloud connection rejected: ";
+    ErrorMsg["ERROR_DEVICE_INFO"] = "Device comm error: ";
+    ErrorMsg["ERROR_CLOUD_NO_DEVICE_LIST"] = "Cloud empty list: ";
+    ErrorMsg["ERROR_ALIAS_NOT_FOUND"] = "Alias not found: ";
+    ErrorMsg["ERROR_FUNC_VALID_COLOR"] = "Color not valid: ";
+    ErrorMsg["ERROR_FUNC_TEMP_COLOR"] = "Color not valid: ";
+    ErrorMsg["ERROR_FUNC_HEX_COLOR"] = "Color not valid: ";
+    ErrorMsg["ERROR_FUNC_KEY_LENGTH"] = "Encryption error: ";
+    ErrorMsg["ERROR_FUNC_BAD_CREDENTIALS"] = "Bad credentials: ";
+    ErrorMsg["ERROR_FUNC_BAD_REQUEST"] = "Device request error: ";
+    ErrorMsg["ERROR_FUNC_BAD_JSON"] = "Invalid JSON answer: ";
+    ErrorMsg["ERROR_FUNC_WRONG_EMAIL"] = "Bad credentials: ";
+    ErrorMsg["ERROR_FUNC_CLOUD_TOKEN_EXPIRED"] = "Token expired: ";
+    ErrorMsg["ERROR_FUNC_DEV_TOKEN_EXPIRED"] = "Token expired: ";
+    ErrorMsg["ERROR_FUNC_UNEXPECTED"] = "Unexpected error: ";
+})(ErrorMsg = exports.ErrorMsg || (exports.ErrorMsg = {}));
 // ****************************************************
 // ***  TAPO CLASSES TO DEFINE TAPO CLIENT SESSIONS ***
 // ****************************************************
@@ -182,7 +242,7 @@ class TapoClient {
             }
             catch (error) {
                 this.close();
-                throw new TapoError('Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aGP_INCOMPLETE]] + 'Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
             }
             // Return the final protocol
             return this._protocol;
@@ -197,7 +257,7 @@ class TapoClient {
             }
             catch (error) {
                 this.close();
-                throw new TapoError('Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aGP_INCOMPLETE]] + 'Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
             }
             // Return the final protocol
             return this._protocol;
@@ -221,7 +281,7 @@ class TapoClient {
                 }
                 catch (error) {
                     this.close();
-                    throw new TapoError('Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aGP_INCOMPLETE]] + 'Negotiation not completed', error, ErrorCode.ERROR_aGP_INCOMPLETE, this._guess_protocol.name);
                 }
             }
             ;
@@ -461,15 +521,15 @@ class TapoResponse {
         // Throw an error in case it is different from 0
         switch (this.error_code) {
             case 0: break;
-            case -1010: throw new TapoError("Invalid public key length", null, ErrorCode.ERROR_FUNC_KEY_LENGTH, this.check_Error.name);
-            case -1501: throw new TapoError("Invalid request or credentials", null, ErrorCode.ERROR_FUNC_BAD_CREDENTIALS, this.check_Error.name);
-            case -1001: throw new TapoError("Incorrect request", null, ErrorCode.ERROR_FUNC_BAD_REQUEST, this.check_Error.name);
-            case -1002: throw new TapoError("Incorrect request", null, ErrorCode.ERROR_FUNC_BAD_REQUEST, this.check_Error.name);
-            case -1003: throw new TapoError("JSON format error", null, ErrorCode.ERROR_FUNC_BAD_JSON, this.check_Error.name);
-            case -20601: throw new TapoError("Incorrect email or password", null, ErrorCode.ERROR_FUNC_WRONG_EMAIL, this.check_Error.name);
-            case -20675: throw new TapoError("Cloud token expired or invalid", null, ErrorCode.ERROR_FUNC_CLOUD_TOKEN_EXPIRED, this.check_Error.name);
-            case 9999: throw new TapoError("Device token expired or invalid", null, ErrorCode.ERROR_FUNC_DEV_TOKEN_EXPIRED, this.check_Error.name);
-            default: throw new TapoError(`Unexpected Error Code: ${this.error_code} (${this.msg})`, null, ErrorCode.ERROR_FUNC_UNEXPECTED, this.check_Error.name);
+            case -1010: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_KEY_LENGTH]] + "Invalid public key length", null, ErrorCode.ERROR_FUNC_KEY_LENGTH, this.check_Error.name);
+            case -1501: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_BAD_CREDENTIALS]] + "Invalid request or credentials", null, ErrorCode.ERROR_FUNC_BAD_CREDENTIALS, this.check_Error.name);
+            case -1001: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_BAD_REQUEST]] + "Incorrect request", null, ErrorCode.ERROR_FUNC_BAD_REQUEST, this.check_Error.name);
+            case -1002: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_BAD_REQUEST]] + "Incorrect request", null, ErrorCode.ERROR_FUNC_BAD_REQUEST, this.check_Error.name);
+            case -1003: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_BAD_JSON]] + "JSON format error", null, ErrorCode.ERROR_FUNC_BAD_JSON, this.check_Error.name);
+            case -20601: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_WRONG_EMAIL]] + "Incorrect email or password", null, ErrorCode.ERROR_FUNC_WRONG_EMAIL, this.check_Error.name);
+            case -20675: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_CLOUD_TOKEN_EXPIRED]] + "Cloud token expired or invalid", null, ErrorCode.ERROR_FUNC_CLOUD_TOKEN_EXPIRED, this.check_Error.name);
+            case 9999: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_DEV_TOKEN_EXPIRED]] + "Device token expired or invalid", null, ErrorCode.ERROR_FUNC_DEV_TOKEN_EXPIRED, this.check_Error.name);
+            default: throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_UNEXPECTED]] + `Unexpected Error Code: ${this.error_code} (${this.msg})`, null, ErrorCode.ERROR_FUNC_UNEXPECTED, this.check_Error.name);
         }
     }
 }
@@ -577,7 +637,7 @@ class ColorParams {
     HEXtoHSL(hex) {
         // Check valid hex color
         if (hex.toLowerCase() === '#000000')
-            throw new TapoError('Cannot set light to black', null, ErrorCode.ERROR_FUNC_HEX_COLOR, this.HEXtoHSL.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_HEX_COLOR]] + 'Cannot set light to black', null, ErrorCode.ERROR_FUNC_HEX_COLOR, this.HEXtoHSL.name);
         let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         // Return i fnull color
         if (result == null)
@@ -620,7 +680,7 @@ class ColorParams {
     temperature(temp) {
         let t = parseInt(temp.slice(0, -1));
         if (t < 2500 || t > 6500)
-            throw new TapoError('Colour temperature should be between 2500K and 6500K.', null, ErrorCode.ERROR_FUNC_TEMP_COLOR, this.temperature.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_TEMP_COLOR]] + 'Colour temperature should be between 2500K and 6500K.', null, ErrorCode.ERROR_FUNC_TEMP_COLOR, this.temperature.name);
         return { color_temp: t };
     }
     get_color(color) {
@@ -631,7 +691,7 @@ class ColorParams {
             return this.temperature(color);
         if (Object.keys(this.preset).includes(color))
             return this.preset[color] || "";
-        throw new TapoError('Invalid Color', null, ErrorCode.ERROR_FUNC_VALID_COLOR, this.get_color.name);
+        throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_VALID_COLOR]] + 'Invalid Color', null, ErrorCode.ERROR_FUNC_VALID_COLOR, this.get_color.name);
     }
 }
 exports.ColorParams = ColorParams;
@@ -744,7 +804,7 @@ class KlapProtocol extends TapoProtocol {
             .then((value) => {
             // Check status of the answer
             if (value.status != 200) {
-                throw new TapoError('URL error - ' + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_FORBID]] + 'URL error - ' + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name);
             }
             else {
                 // Get the cookies
@@ -761,7 +821,7 @@ class KlapProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
-            throw new TapoError('Session_post error - Axios', new TapoError().axios_to_tapo(error), ErrorCode.ERROR_aSP_bAX_REQ_ERR, this.session_post.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_ERR]] + 'Session_post error - Axios', new TapoError().axios_to_tapo(error), ErrorCode.ERROR_aSP_bAX_REQ_ERR, this.session_post.name);
         });
         // Build and return the array of response
         const empty = JSON.stringify({});
@@ -781,7 +841,7 @@ class KlapProtocol extends TapoProtocol {
             return session;
         })
             .catch((error) => {
-            throw new TapoError("Handshake error - " + error.message, error, ErrorCode.ERROR_aPH_bPH1_HSK_ERROR, this.perform_handshake.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH_bPH1_HSK_ERROR]] + "Handshake error - " + error.message, error, ErrorCode.ERROR_aPH_bPH1_HSK_ERROR, this.perform_handshake.name);
         });
         return seeds;
     }
@@ -796,7 +856,7 @@ class KlapProtocol extends TapoProtocol {
         const seeds = await this.session_post(url, this._local_seed)
             .then((value) => {
             if (value[0].status != 200) {
-                throw new TapoError("Device failed to respond to handshake1 with " + value[0].status, null, ErrorCode.ERROR_aPH1_bSP_HSK_FORBID, this.perform_handshake1.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH1_bSP_HSK_FORBID]] + "Device failed to respond to handshake1 with " + value[0].status, null, ErrorCode.ERROR_aPH1_bSP_HSK_FORBID, this.perform_handshake1.name);
             }
             else {
                 // Define a new KlapSession object for the session and retrieve parameters - Session_id, Timeout, remote_seed and server_hash
@@ -837,14 +897,14 @@ class KlapProtocol extends TapoProtocol {
                         else {
                             this._session = null;
                             console.debug("Server response doesn't match our challenge on ip " + this._host);
-                            throw new TapoError("Server response doesn't match our challenge on ip " + this._host, null, ErrorCode.ERROR_aPH1_bSP_HSK_MISSMATCH, this.perform_handshake1.name);
+                            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH1_bSP_HSK_MISSMATCH]] + "Server response doesn't match our challenge on ip " + this._host, null, ErrorCode.ERROR_aPH1_bSP_HSK_MISSMATCH, this.perform_handshake1.name);
                         }
                     }
                 }
             }
         })
             .catch((error) => {
-            throw new TapoError("Handshake1 error - " + error.message, error, ErrorCode.ERROR_aPH1_bSP_HSK_ERROR, this.perform_handshake1.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH1_bSP_HSK_ERROR]] + "Handshake1 error - " + error.message, error, ErrorCode.ERROR_aPH1_bSP_HSK_ERROR, this.perform_handshake1.name);
         });
         return seeds;
     }
@@ -861,7 +921,7 @@ class KlapProtocol extends TapoProtocol {
                 if (this._session != null) {
                     this._session.invalidate();
                 }
-                throw new TapoError("Device responded with " + value[0].status + " to handshake2", null, ErrorCode.ERROR_aPH2_bSP_HSK_REJ, this.perform_handshake2.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH2_bSP_HSK_REJ]] + "Device responded with " + value[0].status + " to handshake2", null, ErrorCode.ERROR_aPH2_bSP_HSK_REJ, this.perform_handshake2.name);
             }
             else {
                 const chiper = new KlapChiper(local_seed, remote_seed, auth_hash);
@@ -869,7 +929,7 @@ class KlapProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
-            throw new TapoError("Device responded with " + error.message + " to handshake2", error, ErrorCode.ERROR_aPH2_bSP_HSK_ERROR, this.perform_handshake2.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH2_bSP_HSK_ERROR]] + "Device responded with " + error.message + " to handshake2", error, ErrorCode.ERROR_aPH2_bSP_HSK_ERROR, this.perform_handshake2.name);
         });
         return response;
     }
@@ -884,11 +944,11 @@ class KlapProtocol extends TapoProtocol {
                     return await this.send_request(request, retr - 1);
                 }
                 catch (error) {
-                    throw new TapoError("Send request failed - Retry nº " + retr.toString(), error, ErrorCode.ERROR_aSR_bSR_RET_ERR, this.send_request.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSR_RET_ERR]] + "Send request failed - Retry nº " + retr.toString(), error, ErrorCode.ERROR_aSR_bSR_RET_ERR, this.send_request.name);
                 }
             }
             else {
-                throw new TapoError("Send request max retries failed", error, ErrorCode.ERROR_aSR_bSR_MAX_RET, this.send_request.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSR_MAX_RET]] + "Send request max retries failed", error, ErrorCode.ERROR_aSR_bSR_MAX_RET, this.send_request.name);
             }
         });
         return response;
@@ -903,7 +963,7 @@ class KlapProtocol extends TapoProtocol {
                 return value;
             })
                 .catch((error) => {
-                throw new TapoError("Send request error", error, ErrorCode.ERROR_aSR_bPH_HSK_ERROR, this._send_request.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bPH_HSK_ERROR]] + "Send request error", error, ErrorCode.ERROR_aSR_bPH_HSK_ERROR, this._send_request.name);
             });
         }
         // Convert request into a JSON string and encrypt request
@@ -920,23 +980,23 @@ class KlapProtocol extends TapoProtocol {
                     if (this._session != null) {
                         this._session.invalidate();
                     }
-                    throw new TapoError("Forbidden error after completing handshake", null, ErrorCode.ERROR_aSR_DEV_FORBID, this._send_request.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_DEV_FORBID]] + "Forbidden error after completing handshake", null, ErrorCode.ERROR_aSR_DEV_FORBID, this._send_request.name);
                 }
                 else {
-                    throw new TapoError("Device " + this._host + " error code " + value[0].status + " with seq " + seq, null, ErrorCode.ERROR_aSR_DEV_GENERAL, this._send_request.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_DEV_GENERAL]] + "Device " + this._host + " error code " + value[0].status + " with seq " + seq, null, ErrorCode.ERROR_aSR_DEV_GENERAL, this._send_request.name);
                 }
             }
             else {
                 const svr_answer = await (new TapoResponse()).try_from_json(JSON.parse(this._session.chiper.decrypt(value[1])))
                     .then((value) => { return value; })
-                    .catch((error) => { throw new TapoError('Functional error - ' + error.message, error, ErrorCode.ERROR_FUNC_GENERAL, this._send_request.name); });
+                    .catch((error) => { throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_GENERAL]] + 'Functional error - ' + error.message, error, ErrorCode.ERROR_FUNC_GENERAL, this._send_request.name); });
                 return svr_answer;
             }
         })
             .catch((error) => {
             if (error.cause.error_code == 3)
                 this._session.invalidate();
-            throw new TapoError("Request error - Device " + this._host + " with seq " + seq + " - Request: " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this._send_request.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSP_REQ_ERR]] + "Request error - Device " + this._host + " with seq " + seq + " - Request: " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this._send_request.name);
         });
         // Return response
         return response;
@@ -1004,7 +1064,7 @@ class KlapChiper extends TapoChiper {
             msg = Buffer.from(new node_util_1.TextEncoder().encode(msg));
         }
         if (!(msg instanceof Buffer))
-            throw new TapoError("El tipo no es Buffer - " + typeof (msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_KL_ENCRYPT_FMT]] + "El tipo no es Buffer - " + typeof (msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name);
         const cipher = (0, node_crypto_1.createCipheriv)(AES_CIPHER_ALGORITHM, this._key, this._iv_seq()).setAutoPadding(true);
         const encryptor = cipher.update(msg);
         const final = cipher.final();
@@ -1042,7 +1102,7 @@ class KlapChiper extends TapoChiper {
         seq.writeInt32BE(this._seq);
         const iv = new Uint8Array([...this._iv, ...seq]);
         if (iv.length != 16)
-            throw new TapoError("La longitud es " + iv.length, null, ErrorCode.ERROR_KL_ENCRYPT_IV_LENGTH, this._iv_seq.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_KL_ENCRYPT_IV_LENGTH]] + "La longitud es " + iv.length, null, ErrorCode.ERROR_KL_ENCRYPT_IV_LENGTH, this._iv_seq.name);
         return iv;
     }
 }
@@ -1099,7 +1159,7 @@ class PassthroughProtocol extends TapoProtocol {
         const response = await axios_1.default.request(config)
             .then((value) => {
             if (value.status != 200) {
-                throw new TapoError('URL error - ' + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_FORBID]] + 'URL error - ' + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name);
             }
             else {
                 // Get the cookies
@@ -1116,7 +1176,7 @@ class PassthroughProtocol extends TapoProtocol {
             }
         })
             .catch((error) => {
-            throw new TapoError('Session_post error - ' + error, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_aSP_bAX_REQ_ERR, this.session_post.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_ERR]] + 'Session_post error - ' + error, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_aSP_bAX_REQ_ERR, this.session_post.name);
         });
         return response;
     }
@@ -1143,7 +1203,7 @@ class PassthroughProtocol extends TapoProtocol {
                 if (session != null) {
                     session.invalidate();
                 }
-                throw new TapoError("Device responded with " + value.status + " to handshake", null, ErrorCode.ERROR_aPH_bSP_HSK_REJ, this.perform_handshake.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH_bSP_HSK_REJ]] + "Device responded with " + value.status + " to handshake", null, ErrorCode.ERROR_aPH_bSP_HSK_REJ, this.perform_handshake.name);
             }
             else {
                 // Read the Session ID and timeout and create a session - still invalid
@@ -1160,7 +1220,7 @@ class PassthroughProtocol extends TapoProtocol {
                     return session.complete_handshake(chiper);
                 }
                 catch (error) {
-                    throw new TapoError("Unable to extract device key from handshake - " + error, null, ErrorCode.ERROR_aPH_bSP_HSK_FORBID, this.perform_handshake.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH_bSP_HSK_FORBID]] + "Unable to extract device key from handshake - " + error, null, ErrorCode.ERROR_aPH_bSP_HSK_FORBID, this.perform_handshake.name);
                 }
                 ;
             }
@@ -1188,7 +1248,7 @@ class PassthroughProtocol extends TapoProtocol {
                         return log_value.result.token;
                     }
                     else {
-                        throw new TapoError("Token not found - " + JSON.stringify(log_value), null, ErrorCode.ERROR_aLG_bS_TOKEN_NOT_FOUND, this._login_with_version.name);
+                        throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aLG_bS_TOKEN_NOT_FOUND]] + "Token not found - " + JSON.stringify(log_value), null, ErrorCode.ERROR_aLG_bS_TOKEN_NOT_FOUND, this._login_with_version.name);
                     }
                 })
                     .catch(async (error) => {
@@ -1196,7 +1256,7 @@ class PassthroughProtocol extends TapoProtocol {
                         return (await this._login_with_version(true)).token;
                     }
                     else {
-                        throw new TapoError("Token error - " + error.message, error, ErrorCode.ERROR_aLG_bS_TOKEN_ERROR, this._login_with_version.name);
+                        throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aLG_bS_TOKEN_ERROR]] + "Token error - " + error.message, error, ErrorCode.ERROR_aLG_bS_TOKEN_ERROR, this._login_with_version.name);
                     }
                 });
                 // Update the token and return the session
@@ -1204,11 +1264,11 @@ class PassthroughProtocol extends TapoProtocol {
                 return ses_value;
             }
             else {
-                throw new TapoError("Detected handshake session timeout ", null, ErrorCode.ERROR_aLG_bPH_HSK_TIMEOUT, this._login_with_version.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aLG_bPH_HSK_TIMEOUT]] + "Detected handshake session timeout ", null, ErrorCode.ERROR_aLG_bPH_HSK_TIMEOUT, this._login_with_version.name);
             }
         })
             .catch((error) => {
-            throw new TapoError("Handshake error - " + error.message, error, ErrorCode.ERROR_aLG_bPH_HSK_ERROR, this._login_with_version.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aLG_bPH_HSK_ERROR]] + "Handshake error - " + error.message, error, ErrorCode.ERROR_aLG_bPH_HSK_ERROR, this._login_with_version.name);
         });
         return session;
     }
@@ -1223,11 +1283,11 @@ class PassthroughProtocol extends TapoProtocol {
                     return await this.send_request(request, retr - 1);
                 }
                 catch (error) {
-                    throw new TapoError("Send request failed - Retry nº " + retr.toString(), error, ErrorCode.ERROR_aSR_bSR_RET_ERR, this.send_request.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSR_RET_ERR]] + "Send request failed - Retry nº " + retr.toString(), error, ErrorCode.ERROR_aSR_bSR_RET_ERR, this.send_request.name);
                 }
             }
             else {
-                throw new TapoError("Send request max retries failed - " + error.message, error, ErrorCode.ERROR_aSR_bSR_MAX_RET, this.send_request.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSR_MAX_RET]] + "Send request max retries failed - " + error.message, error, ErrorCode.ERROR_aSR_bSR_MAX_RET, this.send_request.name);
             }
         });
         return response;
@@ -1260,19 +1320,19 @@ class PassthroughProtocol extends TapoProtocol {
                 if (send_session != null) {
                     send_session.invalidate();
                 }
-                throw new TapoError("Device responded with " + value.status + " to request", null, ErrorCode.ERROR_aSR_bSP_REJ, this.send.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSP_REJ]] + "Device responded with " + value.status + " to request", null, ErrorCode.ERROR_aSR_bSP_REJ, this.send.name);
             }
             else {
                 const svr_answer = await (new TapoResponse()).try_from_json(JSON.parse(JSON.stringify(send_session.chiper.decrypt(value.data.result.response))))
                     .then((value) => { return value; })
-                    .catch((error) => { throw new TapoError('Functional error - ' + error.message, error, ErrorCode.ERROR_FUNC_GENERAL, this._send_request.name); });
+                    .catch((error) => { throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_FUNC_GENERAL]] + 'Functional error - ' + error.message, error, ErrorCode.ERROR_FUNC_GENERAL, this._send_request.name); });
                 return svr_answer;
             }
         })
             .catch((error) => {
             if (error.cause.error_code == 3)
                 this._session.invalidate();
-            throw new TapoError("Device responded with " + error.message + " to request " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this.send.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSP_REQ_ERR]] + "Device responded with " + error.message + " to request " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this.send.name);
         });
         // Return response
         return response;
@@ -1347,7 +1407,7 @@ class Chiper extends TapoChiper {
         //const private_key: Buffer = Buffer.from(keypair.privateKey, 'base64');
         const key_and_iv = this.readDeviceKey(handshake_key, keypair.privateKey);
         if (key_and_iv === null) {
-            throw new TapoError("Decryption failed!", null, ErrorCode.ERROR_CH_UNABLE_KEYS, this.create_from_keypair.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_CH_UNABLE_KEYS]] + "Decryption failed!", null, ErrorCode.ERROR_CH_UNABLE_KEYS, this.create_from_keypair.name);
         }
         else {
             this._key = key_and_iv.subarray(0, 16);
@@ -1381,7 +1441,7 @@ class Chiper extends TapoChiper {
             msg = Buffer.from(msg);
         }
         if (!(msg instanceof Buffer))
-            throw new TapoError("El tipo no es Buffer - " + typeof (msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_KL_ENCRYPT_FMT]] + "El tipo no es Buffer - " + typeof (msg), null, ErrorCode.ERROR_KL_ENCRYPT_FMT, this.encrypt.name);
         const cipher = (0, node_crypto_1.createCipheriv)(AES_CIPHER_ALGORITHM, this._key, this._iv).setAutoPadding(true);
         const encryptor = cipher.update(msg);
         const final = cipher.final();
@@ -1403,10 +1463,10 @@ class SnowflakeId {
         this.SEQUENCE_MASK = (1 << this.SEQUENCE_BITS) - 1;
         // Check the limits
         if ((worker_id > this.MAX_WORKER_ID) || (worker_id < 0)) {
-            throw new TapoError("Worker ID can't be greater than " + this.MAX_WORKER_ID + " or less than 0", null, ErrorCode.ERROR_SNOW_WORKER_ID, 'SnowflakeId');
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_SNOW_WORKER_ID]] + "Worker ID can't be greater than " + this.MAX_WORKER_ID + " or less than 0", null, ErrorCode.ERROR_SNOW_WORKER_ID, 'SnowflakeId');
         }
         if ((data_certer_id > this.MAX_DATA_CENTER_ID) || (data_certer_id < 0)) {
-            throw new TapoError("Data center ID can't be greater than " + this.MAX_DATA_CENTER_ID + " or less than 0", null, ErrorCode.ERROR_SNOW_DATA_CENTER_ID, 'SnowflakeId');
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_SNOW_DATA_CENTER_ID]] + "Data center ID can't be greater than " + this.MAX_DATA_CENTER_ID + " or less than 0", null, ErrorCode.ERROR_SNOW_DATA_CENTER_ID, 'SnowflakeId');
         }
         // Assign the values
         this.worker_id = worker_id;
@@ -1420,7 +1480,7 @@ class SnowflakeId {
         let timestamp = new Date().getTime();
         // Check timestamp against last one
         if (timestamp < this.last_timestamp) {
-            throw new TapoError("Clock moved backwards. Refusing to generate ID.", null, ErrorCode.ERROR_SNOW_INVALID_TIME_ID, this.generate_id.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_SNOW_INVALID_TIME_ID]] + "Clock moved backwards. Refusing to generate ID.", null, ErrorCode.ERROR_SNOW_INVALID_TIME_ID, this.generate_id.name);
         }
         else if (timestamp == this.last_timestamp) {
             // Within the same millisecond increment the sequence number
@@ -1532,10 +1592,10 @@ class TapoDevice {
             }
         }
         else {
-            throw new TapoError("Failed to get tapo device list", null, ErrorCode.ERROR_CLOUD_NO_DEVICE_LIST, this.get_device_by_alias.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_CLOUD_NO_DEVICE_LIST]] + "Failed to get tapo device list", null, ErrorCode.ERROR_CLOUD_NO_DEVICE_LIST, this.get_device_by_alias.name);
         }
         // Return error not found
-        throw new TapoError('Alias not found - ' + alias, null, ErrorCode.ERROR_ALIAS_NOT_FOUND, this.get_device_by_alias.name);
+        throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_ALIAS_NOT_FOUND]] + 'Alias not found - ' + alias, null, ErrorCode.ERROR_ALIAS_NOT_FOUND, this.get_device_by_alias.name);
     }
     async cloud_login(auth_credential) {
         // Prepare the request to connect to Cloud account
@@ -1544,7 +1604,7 @@ class TapoDevice {
         const response = await axios_1.default.request(config)
             .then(async (value) => {
             if (value.status != 200) {
-                throw new TapoError('Tapo Cloud server - Unable to connect: ' + value.statusText, null, ErrorCode.ERROR_CLOUD_CONN_REJ, this.cloud_login.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_CLOUD_CONN_REJ]] + 'Tapo Cloud server - Unable to connect: ' + value.statusText, null, ErrorCode.ERROR_CLOUD_CONN_REJ, this.cloud_login.name);
             }
             else {
                 const svr_answer = await (new TapoResponse()).try_from_json(JSON.parse(JSON.stringify(value.data)));
@@ -1552,7 +1612,7 @@ class TapoDevice {
             }
         })
             .catch((error) => {
-            throw new TapoError('Tapo Cloud server error - ' + error.message, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_AXIOS_ERROR, this.cloud_login.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_AXIOS_ERROR]] + 'Tapo Cloud server error - ' + error.message, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_AXIOS_ERROR, this.cloud_login.name);
         });
         // Return collected Cloud token
         return response.result.token;
@@ -1564,7 +1624,7 @@ class TapoDevice {
         const response = await axios_1.default.request(config)
             .then(async (value) => {
             if (value.status != 200) {
-                throw new TapoError('Tapo Cloud server - Unable to connect: ' + value.statusText, null, ErrorCode.ERROR_CLOUD_CONN_REJ, this.list_devices.name);
+                throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_CLOUD_CONN_REJ]] + 'Tapo Cloud server - Unable to connect: ' + value.statusText, null, ErrorCode.ERROR_CLOUD_CONN_REJ, this.list_devices.name);
             }
             else {
                 const svr_answer = await (new TapoResponse()).try_from_json(JSON.parse(JSON.stringify(value.data)));
@@ -1572,7 +1632,7 @@ class TapoDevice {
             }
         })
             .catch((error) => {
-            throw new TapoError('Tapo Cloud server error - ' + error.message, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_AXIOS_ERROR, this.list_devices.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_AXIOS_ERROR]] + 'Tapo Cloud server error - ' + error.message, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_AXIOS_ERROR, this.list_devices.name);
         });
         // Return a mapping of the list
         return Promise.all(response.result.deviceList.map(async (deviceInfo) => this.augment_TapoDevice(deviceInfo)));
@@ -1591,7 +1651,7 @@ class TapoDevice {
             }
         }
         catch (error) {
-            throw new TapoError('Error on Tapo Device information - ' + error, null, ErrorCode.ERROR_DEVICE_INFO, this.augment_TapoDevice.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_DEVICE_INFO]] + 'Error on Tapo Device information - ' + error, null, ErrorCode.ERROR_DEVICE_INFO, this.augment_TapoDevice.name);
         }
         // Check if it is a Tapo Device
         if (this.isTapoDevice(deviceInfo.deviceType)) {
@@ -1620,7 +1680,7 @@ class TapoDevice {
             return result;
         }
         catch (error) {
-            throw new TapoError('MAC conversion error - ' + error, null, ErrorCode.GENERIC_ERROR, this.resolve_MAC_to_IP.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.GENERIC_ERROR]] + 'MAC conversion error - ' + error, null, ErrorCode.GENERIC_ERROR, this.resolve_MAC_to_IP.name);
         }
     }
     tidy_MAC(mac) {

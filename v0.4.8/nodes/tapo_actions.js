@@ -202,6 +202,7 @@ const nodeInit = (RED) => {
             try {
                 // Set device color as requested
                 const answer = await device.send_request(request, proto);
+                response.tapoCommand = answer;
                 // Return positive result
                 response.result = true;
                 response.device = device;
@@ -212,7 +213,7 @@ const nodeInit = (RED) => {
             }
         }
         node.on('input', async (msg) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
             try {
                 // Prepare config information 
                 let config = {
@@ -273,8 +274,10 @@ const nodeInit = (RED) => {
                             ret = await get_component(ret.device, config.version);
                         }
                         else if (config.command == "command") {
+                            // Prepare the request with msg.payload components
+                            const request = new tapo_klap_protocol_1.TapoRequest((_w = msg.payload) === null || _w === void 0 ? void 0 : _w.method, (_x = msg.payload) === null || _x === void 0 ? void 0 : _x.params);
                             // Set brightness of device depending on msg.payload
-                            ret = await send_request(ret.device, config.version, msg.payload);
+                            ret = await send_request(ret.device, config.version, request);
                         }
                     }
                     // Update the client device in the node
@@ -305,10 +308,12 @@ const nodeInit = (RED) => {
                     // Check verbose to remove track
                     if (!config.verbose) {
                         //    if (typeof(msg.payload.errorInf["track"]) != 'undefined') delete msg.payload.errorInf["track"];
-                        if (typeof (ret.errorInf["cause"]) != 'undefined')
+                        if (typeof (ret.errorInf["cause"]) != 'undefined') {
+                            ret.errorInf["cause"]["message"] = ret.errorInf["cause"]["message"].split(":")[0];
                             msg.payload.errorInf = ret.errorInf["cause"];
+                        }
                     }
-                    node.status({ fill: "red", shape: "ring", text: msg.payload.errorInf.message.split("-")[0] });
+                    node.status({ fill: "red", shape: "ring", text: msg.payload.errorInf.message.split(":")[0] });
                 }
             }
             catch (error) {

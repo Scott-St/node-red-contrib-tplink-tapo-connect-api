@@ -218,6 +218,7 @@ type TapoResuls = {
     tapoDeviceInfo?: TapoDeviceInfo; /* Tapo device infomation */
     tapoEnergyUsage?: TapoDeviceInfo | undefined; /* Tapo device energy if compatible */
     tapoComponents?: Components | undefined; /* Tapo device components information */
+    tapoCommand?: Json_T | undefined; /* Tapo device results from "command" */
     errorInf?: Error;
 }
 ```
@@ -307,6 +308,6 @@ There are some npm-scripts to help developments.
           ├─lib
           ├─locales
           │  ├─en-US
-          │  └─ja
+          │  └─es-ES
           └─test
   ```
