@@ -1,0 +1,51 @@
+{
+    "resources": {
+        "paletteLabel": "actions",
+        "labels": {
+            "name": "Nombre",
+            "password": "Clave",
+            "email": "Email",
+            "deviceIp": "Tapo ipaddress",
+            "deviceAlias": "Tapo alias",
+            "deviceIpRange": "Rango busqueda ip",
+            "targetDeviceSettings": "Parametros dispositivo",
+            "searchMode":{
+                "title": "Modo busqueda",
+                "ip":"ip",
+                "alias":"alias"
+            },
+            "version":{
+                "title": "Protocolo ",
+                "v1": "V1 - Passthrough (antiguo)",
+                "v2": "V2 - Klap (nuevo)",
+                "auto": "Auto - Adivina version",
+                "description": "Selecciona la version de protocolo y la funcionalidad del boton"
+            },
+            "command":{
+                "title": "Comando ",
+                "status": "STATUS (Obtiene info)",
+                "power": "POWER (Apaga / Enciende)",
+                "on": "ON (Enciende)",
+                "off": "OFF (Apaga)",
+                "toggle": "TOGGLE (Cambia)",
+                "color": "COLOR (Ajusta color)",
+                "brightness": "BRIGHT (Ajusta brillo)",
+                "components": "COMPONENTS (Obtiene componentes)",
+                "command": "COMMAND (Comando personalizado)",
+                "description": "Selecciona la funcion del boton"
+            }
+        },
+        "descriptions": {
+            "targetDeviceSettings": "Selecciona el modo de busqueda \"Tapo ip or Tapo alias\""
+        },
+        "message": {
+            "ready": "Listo.",
+            "complete_auto": "Conectado (AUTO)",
+            "complete_pass": "Conectado (PASSTHROUGH)",
+            "complete_klap": "Conectado (KLAP)",
+            "configError": "Error config.",
+            "error": "Error.",
+            "communicationError": "Error comunicacion."
+        }
+    }
+}
