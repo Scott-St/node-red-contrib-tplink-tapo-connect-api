@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
  
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.5.0] - 2024-01-30
+  
+New commands added to complete the set. Bug fixed for esporadic errors when connecting first time to device. Spanish locale lenguage added. Meaningfull non verbose errors.
  
+### Added
+
+- [tapo_klap_protocol.js](https://github.com/mbserran/node-red-contrib-tapo-new-api/blob/master/src/nodes/tapo_klap_protocol.ts)
+  BUG   Optimized management of sockets through `http & https Agents`. Quicker response and less sporadic issues of connectivity.
+  BUG   Error message on Axios corrected on `verbose` not activated.
+
+### Changed
+ 
+### Fixed
  
 ## [0.4.9] - 2024-01-24
   

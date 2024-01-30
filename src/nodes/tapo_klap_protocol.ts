@@ -4,6 +4,8 @@
 import {TextEncoder, promisify} from 'node:util';
 import {Cipher, KeyObject, createHash, createCipheriv, createDecipheriv, webcrypto, KeyPairKeyObjectResult, generateKeyPair, privateDecrypt, constants} from 'node:crypto';
 import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import http from 'node:http';
+import https from 'node:https';
 import {v4 as uuidv4} from 'uuid';
 import find from 'local-devices';
 
@@ -21,6 +23,7 @@ const TP_TEST_USER = "test@tp-link.net";
 const TP_TEST_PASSWORD = "test";
 const CLOUD_URL = "https://eu-wap.tplinkcloud.com";
 const MAX_RETRIES_GUESS = 18;
+const AXIOS_TIMEOUT = 1000;
 
 // Constants for supported Energy devices
 export const supportEnergyUsage = ["P110","P115"];
@@ -221,22 +224,24 @@ export class TapoClient {
         // Set the properties to false to avoid any change or access once created
         Object.defineProperty(this, '_auth_credential', {enumerable: false});
         Object.defineProperty(this, '_http_session', {enumerable: false});
+        Object.defineProperty(this, '_http_agent', {enumerable: false});
         Object.defineProperty(this, '_protocol', {enumerable: false});
     }
 
     // Public method to create the client
-    public create(credential: AuthCredential, address: string, port?: number, is_https?: boolean, http_session?: AxiosInstance, protocol_type?: TapoProtocolType): TapoClient {
+    public create(credential: AuthCredential, address: string, port?: number, is_https?: boolean, http_agent?: http.Agent, http_session?: AxiosInstance, protocol_type?: TapoProtocolType): TapoClient {
         if (typeof(port) === undefined) port = 80;
         if (typeof(is_https) === undefined) is_https = false;
+        if (typeof(http_agent) === undefined) http_agent = (is_https ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true }));
         if (typeof(http_session) === undefined) http_session = null;
         if (typeof(protocol_type) === undefined) protocol_type = TapoProtocolType.KLAP;
 
         const url: string = (is_https?'https':'http') + "://" + address + ":" + port + "/app";
         var protocol: TapoProtocol = null;
         if (protocol_type == TapoProtocolType.KLAP) {
-            protocol = new KlapProtocol(credential, url, http_session);
+            protocol = new KlapProtocol(credential, url, http_agent, http_session);
         } else if (protocol_type == TapoProtocolType.PASSTHROUGH) {
-            protocol = new PassthroughProtocol(credential, url, http_session);
+            protocol = new PassthroughProtocol(credential, url, http_agent, http_session);
         }
         return new TapoClient(credential, url, protocol, http_session);
     }
@@ -260,7 +265,7 @@ export class TapoClient {
 
                 // Set PASSTHROGH and get the components
                 console.debug("Set protocol to PASSTHROUGH");
-                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, undefined, this._http_session, this._terminal_random);
                 const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
 
             } catch (error: any) {
@@ -278,7 +283,7 @@ export class TapoClient {
 
                 // Set KLAP and get the components
                 console.debug("Set protocol to KLAP");
-                this._protocol = new KlapProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                this._protocol = new KlapProtocol(this._auth_credential, this._url, undefined, this._http_session, this._terminal_random);
                 const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
 
             } catch (error: any) {
@@ -296,7 +301,7 @@ export class TapoClient {
 
                 // Set Passthrough and get the components
                 console.debug("Trying first with PassthroughProtocol");
-                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                this._protocol = new PassthroughProtocol(this._auth_credential, this._url, undefined, this._http_session, this._terminal_random);
                 const resp: Components = await this.get_component_negotiation(TapoProtocolType.PASSTHROUGH, MAX_RETRIES_GUESS)
 
             } catch (err: any) {
@@ -307,7 +312,7 @@ export class TapoClient {
 
                     // Set KLAP and get the components
                     console.debug("Default protocol not working. Fallback to KLAP");
-                    this._protocol = new KlapProtocol(this._auth_credential, this._url, this._http_session, this._terminal_random);
+                    this._protocol = new KlapProtocol(this._auth_credential, this._url, undefined, this._http_session, this._terminal_random);
                     const resp_klap: Components = await this.get_component_negotiation(TapoProtocolType.KLAP, MAX_RETRIES_GUESS);
 
                 } catch (error: any) {
@@ -780,6 +785,7 @@ export abstract class TapoProtocol {
     public abstract _host: string;
     public abstract _auth_credential: AuthCredential;
     public abstract _http_session: AxiosInstance;
+    public abstract _http_agent: http.Agent | https.Agent;
     public abstract _session: TapoSession;  // Rename in the future - It can be a KLAP or PASSTHROUGH session
     public abstract _jar: Json_T;
     public abstract _protocol_type: TapoProtocolType;
@@ -851,7 +857,7 @@ export class TapoError {
         } else {
             this.error_code = ErrorCode.ERROR_AXIOS_ERROR;
         }
-        this.message = axios.code + ' - ' + axios.message;
+        this.message = ErrorMsg[ErrorCode[this.error_code]] + axios.code + ' - ' + axios.message;
         this.agent = axios.name;
         this.cause = {message: this.message, error_code: this.error_code, agent: this.agent};
         return this;
@@ -877,13 +883,15 @@ export class KlapProtocol extends TapoProtocol {
     public local_auth_hash: Buffer;
     public _jar: Json_T;
     public _http_session: AxiosInstance;
+    public _http_agent: http.Agent | https.Agent;
     public _session: KlapSession | null;
     public _request_id_generator: SnowflakeId;
     public _protocol_type: TapoProtocolType;
     public _terminal_random: boolean;
 
+
      // Constructor to initialize the class
-    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance, terminal_random?: boolean) {
+    constructor(auth_credential: AuthCredential, url: string, http_agent?: http.Agent, http_session?: AxiosInstance, terminal_random?: boolean) {
         super();
         this._base_url = url;
         this._host = (new URL(this._base_url)).hostname;
@@ -891,7 +899,8 @@ export class KlapProtocol extends TapoProtocol {
         this.local_auth_hash = this.generate_auth_hash(this._auth_credential);
         this._local_seed = null;
         this._jar = null;
-        this._http_session = (typeof(http_session) == 'undefined' ? axios.create({baseURL: url}) : http_session);
+        this._http_agent = (typeof(http_agent) == 'undefined' ? (new URL(url).protocol == 'https' ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true })) : http_agent);
+        this._http_session = (typeof(http_session) == 'undefined' ? axios.create({timeout: AXIOS_TIMEOUT, httpAgent: this._http_agent, validateStatus: () => {return true}, proxy: false}) : http_session);
         this._session = null;
         this._protocol_type = TapoProtocolType.KLAP;
         this._terminal_random = ((typeof(terminal_random) == 'undefined') ? false : terminal_random);
@@ -926,12 +935,12 @@ export class KlapProtocol extends TapoProtocol {
     public async session_post(url: string, data: any, cookies?: any, params?: any): Promise<[AxiosResponse, Buffer]> {
         this._jar = null;
         const config: AxiosRequestConfig = {url: url, method: 'post', data: data, headers: (typeof(cookies) == 'undefined'?undefined:{'Cookie': cookies}), params: (typeof(params) == 'undefined'?undefined:params), responseType: 'arraybuffer'};
-        const response: AxiosResponse = await axios.request(config)
+        const response: AxiosResponse = await this._http_session.request(config)
             .then((value: AxiosResponse): AxiosResponse => {  
                 
                 // Check status of the answer
                 if (value.status != 200) {
-                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_FORBID]] + 'URL error - ' + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name)
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_FORBID]] + 'URL error - ' + value.statusText + " - " + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name)
                 } else {
 
                     // Get the cookies
@@ -1133,7 +1142,8 @@ export class KlapProtocol extends TapoProtocol {
                 }
             })
             .catch((error: TapoError) => {
-                if (error.cause.error_code == 3) this._session.invalidate();
+            //    if (error.cause.error_code == 3) this._session.invalidate();
+                this._session.invalidate();
                 throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSP_REQ_ERR]] + "Request error - Device " + this._host +  " with seq " + seq + " - Request: " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this._send_request.name);
             });
 
@@ -1145,6 +1155,8 @@ export class KlapProtocol extends TapoProtocol {
     public async close() {
         if (this._session != null) {
             this._session.invalidate();
+            this._http_agent.destroy();
+            this._http_session = null;
         }
     }
 }
@@ -1284,6 +1296,7 @@ export class PassthroughProtocol extends TapoProtocol {
     public _host: string;
     public _auth_credential: AuthCredential;
     public _http_session: AxiosInstance;
+    public _http_agent: http.Agent | https.Agent;
     public _session: Session;
     public _jar: Json_T;
     public _request_id_generator: SnowflakeId;
@@ -1291,11 +1304,12 @@ export class PassthroughProtocol extends TapoProtocol {
     public _terminal_random: boolean;
 
      // Constructor to initialize the class
-    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance, terminal_random?: boolean) {
+    constructor(auth_credential: AuthCredential, url: string, http_agent?: http.Agent, http_session?: AxiosInstance, terminal_random?: boolean) {
         super();
         this._base_url = url;
         this._host = (new URL(this._base_url)).hostname;
-        this._http_session = (typeof(http_session) == 'undefined' ? axios.create({baseURL: url}) : http_session);
+        this._http_agent = (typeof(http_agent) == 'undefined' ? (new URL(url).protocol == 'https' ? new https.Agent({ keepAlive: true }) : new http.Agent({ keepAlive: true })) : http_agent);
+        this._http_session = (typeof(http_session) == 'undefined' ? axios.create({timeout: AXIOS_TIMEOUT, httpAgent: this._http_agent, validateStatus: () => {return true}, proxy: false}) : http_session);
         this._session = null;
         this._auth_credential = auth_credential;
         this._request_id_generator = new SnowflakeId(1, 1);
@@ -1339,10 +1353,10 @@ export class PassthroughProtocol extends TapoProtocol {
         const common_headers: Json_T = { "Content-Type": "application/json", "requestByApp": "true", "Accept": "application/json" };
         const headers: Json_T = {...common_headers, ...(typeof(cookies) == 'undefined'?undefined:{'Cookie': cookies})};
         const config: AxiosRequestConfig = {url: url, method: 'post', data: data, headers: headers, params: (typeof(params) == 'undefined'?undefined:params)};
-        const response: AxiosResponse = await axios.request(config)
+        const response: AxiosResponse = await this._http_session.request(config)
             .then((value: AxiosResponse): AxiosResponse => {
                 if (value.status != 200) {
-                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_FORBID]] + 'URL error - ' + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_FORBID]] + 'URL error - ' + value.statusText + " - " + value.status, null, ErrorCode.ERROR_aSP_bAX_REQ_FORBID, this.session_post.name);
                 } else {
 
                     // Get the cookies
@@ -1527,7 +1541,8 @@ export class PassthroughProtocol extends TapoProtocol {
                 }
             })
             .catch((error: TapoError) => {
-                if (error.cause.error_code == 3) this._session.invalidate();
+            //    if (error.cause.error_code == 3) this._session.invalidate();
+                send_session.invalidate();
                 throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSP_REQ_ERR]] + "Device responded with " + error.message + " to request " + raw_request, error, ErrorCode.ERROR_aSR_bSP_REQ_ERR, this.send.name);
             });
         
@@ -1539,6 +1554,8 @@ export class PassthroughProtocol extends TapoProtocol {
     public async close() {
         if (this._session != null) {
             this._session.invalidate();
+            this._http_agent.destroy();
+            this._http_session = null;
         }
     }
 }
@@ -1879,7 +1896,7 @@ export class TapoDevice {
   
         // Prepare the request to connect to Cloud account
         const request: TapoRequest = new TapoRequest().cloud_login(auth_credential);
-        const config: AxiosRequestConfig = {url: CLOUD_URL, method: 'post', data: request};
+        const config: AxiosRequestConfig = {url: CLOUD_URL, method: 'post', data: request, timeout: AXIOS_TIMEOUT, httpAgent: new http.Agent({ keepAlive: false }), validateStatus: () => {return true}, proxy: false};
         const response: TapoResponse<Json_T> = await axios.request(config)
             .then(async (value: AxiosResponse): Promise<TapoResponse<Json_T>> => {
                 if (value.status != 200) {
@@ -1901,7 +1918,7 @@ export class TapoDevice {
 
         // Prepare the request to get the list
         const request: TapoRequest = new TapoRequest().cloud_list_devices();
-        const config: AxiosRequestConfig = {url: CLOUD_URL + '?token=' + cloudToken, method: 'post', data: request};
+        const config: AxiosRequestConfig = {url: CLOUD_URL + '?token=' + cloudToken, method: 'post', data: request, timeout: AXIOS_TIMEOUT, httpAgent: new http.Agent({ keepAlive: false }), validateStatus: () => {return true}, proxy: false};
         const response: TapoResponse<Json_T> = await axios.request(config)
             .then(async (value: AxiosResponse): Promise<TapoResponse<Json_T>> => {
                 if (value.status != 200) {

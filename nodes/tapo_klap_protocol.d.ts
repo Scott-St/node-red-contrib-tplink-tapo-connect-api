@@ -1,7 +1,11 @@
 /// <reference types="node" />
 /// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="node" />
 import { Cipher, KeyPairKeyObjectResult } from 'node:crypto';
 import { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import http from 'node:http';
+import https from 'node:https';
 export type Json_T = {
     [any: string]: any;
 };
@@ -136,7 +140,7 @@ export declare class TapoClient {
         [any: string]: (any: any) => any;
     };
     constructor(auth_credential: AuthCredential, url: string, protocol?: TapoProtocol, http_session?: AxiosInstance, terminal_random?: boolean);
-    create(credential: AuthCredential, address: string, port?: number, is_https?: boolean, http_session?: AxiosInstance, protocol_type?: TapoProtocolType): TapoClient;
+    create(credential: AuthCredential, address: string, port?: number, is_https?: boolean, http_agent?: http.Agent, http_session?: AxiosInstance, protocol_type?: TapoProtocolType): TapoClient;
     private _initialize_protocol_if_needed;
     private _guess_protocol;
     perform_handshake(protocol?: TapoProtocolType): Promise<TapoClient>;
@@ -271,6 +275,7 @@ export declare abstract class TapoProtocol {
     abstract _host: string;
     abstract _auth_credential: AuthCredential;
     abstract _http_session: AxiosInstance;
+    abstract _http_agent: http.Agent | https.Agent;
     abstract _session: TapoSession;
     abstract _jar: Json_T;
     abstract _protocol_type: TapoProtocolType;
@@ -312,11 +317,12 @@ export declare class KlapProtocol extends TapoProtocol {
     local_auth_hash: Buffer;
     _jar: Json_T;
     _http_session: AxiosInstance;
+    _http_agent: http.Agent | https.Agent;
     _session: KlapSession | null;
     _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
     _terminal_random: boolean;
-    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance, terminal_random?: boolean);
+    constructor(auth_credential: AuthCredential, url: string, http_agent?: http.Agent, http_session?: AxiosInstance, terminal_random?: boolean);
     generate_auth_hash(auth: AuthCredential): Buffer;
     _sha1(payload: Buffer): Buffer;
     _sha256(payload: Buffer): Buffer;
@@ -358,12 +364,13 @@ export declare class PassthroughProtocol extends TapoProtocol {
     _host: string;
     _auth_credential: AuthCredential;
     _http_session: AxiosInstance;
+    _http_agent: http.Agent | https.Agent;
     _session: Session;
     _jar: Json_T;
     _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
     _terminal_random: boolean;
-    constructor(auth_credential: AuthCredential, url: string, http_session?: AxiosInstance, terminal_random?: boolean);
+    constructor(auth_credential: AuthCredential, url: string, http_agent?: http.Agent, http_session?: AxiosInstance, terminal_random?: boolean);
     create_key_pair(key_size?: number): Promise<KeyPairKeyObjectResult>;
     session_post(url: string, data: any, cookies?: any, params?: any): Promise<AxiosResponse>;
     perform_handshake(url?: string): Promise<Session>;
