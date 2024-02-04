@@ -133,15 +133,12 @@ export declare class AuthCredential {
 export declare class TapoClient {
     private _auth_credential;
     _url: string;
-    _protocol_type: TapoProtocolType;
-    _protocol: TapoProtocol;
+    private _protocol;
     _terminal_random: boolean;
-    _debug: boolean;
-    _keep_alive: boolean;
     actions: {
         [any: string]: (any: any) => any;
     };
-    constructor(auth_credential: AuthCredential, url: string, protocol?: TapoProtocolType, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean);
+    constructor(auth_credential: AuthCredential, url: string, protocol?: TapoProtocol, http_session?: AxiosInstance, terminal_random?: boolean);
     private _initialize_protocol_if_needed;
     private _guess_protocol;
     perform_handshake(protocol?: TapoProtocolType): Promise<TapoClient>;
@@ -283,7 +280,7 @@ export declare abstract class TapoProtocol {
     abstract _terminal_random: boolean;
     abstract perform_handshake(): any;
     abstract send_request(request: TapoRequest, retry?: number): Promise<TapoResponse<any>>;
-    abstract close(change_agent?: boolean): void;
+    abstract close(): any;
 }
 export declare abstract class TapoSession {
     abstract chiper: TapoChiper;
@@ -293,7 +290,7 @@ export declare abstract class TapoSession {
     abstract terminal_uuid: string;
     abstract get_cookies(): [Json_T, string];
     abstract is_handshake_session_expired(): boolean;
-    abstract invalidate(): void;
+    abstract invalidate(): any;
     abstract complete_handshake(chiper: TapoChiper): TapoSession;
 }
 export declare abstract class TapoChiper {
@@ -323,8 +320,7 @@ export declare class KlapProtocol extends TapoProtocol {
     _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
     _terminal_random: boolean;
-    _keep_alive: boolean;
-    constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean);
+    constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean);
     generate_auth_hash(auth: AuthCredential): Buffer;
     _sha1(payload: Buffer): Buffer;
     _sha256(payload: Buffer): Buffer;
@@ -334,7 +330,7 @@ export declare class KlapProtocol extends TapoProtocol {
     perform_handshake2(local_seed: Buffer, remote_seed: Buffer, auth_hash: Buffer): Promise<KlapSession>;
     send_request(request: TapoRequest, retry?: number): Promise<TapoResponse<Json_T>>;
     _send_request(request: TapoRequest, retry?: number): Promise<TapoResponse<Json_T>>;
-    close(change_agent?: boolean): Promise<void>;
+    close(): Promise<void>;
 }
 export declare class KlapSession extends TapoSession {
     chiper: KlapChiper;
@@ -372,8 +368,7 @@ export declare class PassthroughProtocol extends TapoProtocol {
     _request_id_generator: SnowflakeId;
     _protocol_type: TapoProtocolType;
     _terminal_random: boolean;
-    _keep_alive: boolean;
-    constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean);
+    constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean);
     create_key_pair(key_size?: number): Promise<KeyPairKeyObjectResult>;
     session_post(url: string, data: any, cookies?: any, params?: any): Promise<AxiosResponse>;
     perform_handshake(url?: string): Promise<Session>;
@@ -381,7 +376,7 @@ export declare class PassthroughProtocol extends TapoProtocol {
     send_request(request: TapoRequest, retry?: number): Promise<TapoResponse<Json_T>>;
     _send_request(request: TapoRequest, retry?: number): Promise<TapoResponse<Json_T>>;
     send(request: TapoRequest, session?: Session): Promise<TapoResponse<Json_T>>;
-    close(change_agent?: boolean): Promise<void>;
+    close(): Promise<void>;
 }
 export declare class Session extends TapoSession {
     chiper: Chiper;
@@ -448,9 +443,7 @@ export declare class TapoDevice {
     status: number;
     ip: string;
     terminal_random?: boolean;
-    _debug: boolean;
-    _keep_alive: boolean;
-    constructor(terminal_random?: boolean, api?: TapoClient, keep_alive?: boolean, debug?: boolean);
+    constructor(terminal_random?: boolean, api?: TapoClient);
     raw_command(method: string, params: Json_T, protocol?: TapoProtocolType): Promise<Json_T>;
     get_device_info(protocol?: TapoProtocolType): Promise<TapoDeviceInfo>;
     get_energy_usage(protocol?: TapoProtocolType): Promise<TapoEnergyUsage>;
@@ -460,7 +453,7 @@ export declare class TapoDevice {
     send_request(request: TapoRequest, protocol?: TapoProtocolType): Promise<Json_T>;
     get_state_as_json(protocol?: TapoProtocolType): Promise<Json_T>;
     get_component_negotiation(protocol?: TapoProtocolType): Promise<Components>;
-    get_device_by_IP(auth_credential: AuthCredential, ip: string, protocol?: TapoProtocolType): Promise<TapoDevice>;
+    get_device_by_IP(auth_credential: AuthCredential, ip: string, protocol?: TapoProtocol): Promise<TapoDevice>;
     get_device_by_alias(auth_credential: AuthCredential, alias: string, range_ip?: string): Promise<TapoDevice>;
     cloud_login(auth_credential: AuthCredential): Promise<string>;
     list_devices(cloudToken: string): Promise<Array<TapoDevice>>;
