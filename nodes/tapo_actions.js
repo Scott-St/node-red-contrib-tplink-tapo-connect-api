@@ -230,7 +230,8 @@ const nodeInit = (RED) => {
                     device: node.device
                 };
                 // Print config in the log
-                console.log(`config[${REGISTER_TYPE}]:`, config);
+                if (config.verbose)
+                    console.log(`config[${REGISTER_TYPE}]:`, config);
                 // Prepare result variable to false
                 let ret = {
                     result: false
