@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.2] - 2024-02-05
+  
+Reduction of debug messages to avoid too much `syslog`information. If you have many buttons and/or you want to avoid too much information to appear in the log, please update to this version. 
+ 
+### Added
+
+- [tapo_klap_protocol.js](https://github.com/mbserran/node-red-contrib-tapo-new-api/blob/master/src/nodes/tapo_klap_protocol.ts)
+  MINOR   New `debug` calling option introduced in api to avoid by default debugging information in the log. Buttons always call the api with `debug`set to false (default).
+
+### Changed
+ 
+### Fixed
+
 ## [0.5.1] - 2024-02-04
   
 Bugs corrected on selection of TapoProtocolType at device creation time. Solved some pending issues with axios on old version 1 devices (not supporting Keep_alive connections). It is highly recommended to change to this version. Version 0.5.0 does not work with old V1 devices due to `keep_alive` parameter introduced in that version.

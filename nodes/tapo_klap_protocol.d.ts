@@ -324,6 +324,7 @@ export declare class KlapProtocol extends TapoProtocol {
     _protocol_type: TapoProtocolType;
     _terminal_random: boolean;
     _keep_alive: boolean;
+    _debug: boolean;
     constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean);
     generate_auth_hash(auth: AuthCredential): Buffer;
     _sha1(payload: Buffer): Buffer;
@@ -373,6 +374,7 @@ export declare class PassthroughProtocol extends TapoProtocol {
     _protocol_type: TapoProtocolType;
     _terminal_random: boolean;
     _keep_alive: boolean;
+    _debug: boolean;
     constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean);
     create_key_pair(key_size?: number): Promise<KeyPairKeyObjectResult>;
     session_post(url: string, data: any, cookies?: any, params?: any): Promise<AxiosResponse>;

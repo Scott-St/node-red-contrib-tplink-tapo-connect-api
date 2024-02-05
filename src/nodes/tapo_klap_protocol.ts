@@ -22,7 +22,7 @@ const TP_SESSION_COOKIE_NAME = "TP_SESSIONID";
 const TP_TEST_USER = "test@tp-link.net";
 const TP_TEST_PASSWORD = "test";
 const CLOUD_URL = "https://eu-wap.tplinkcloud.com";
-const MAX_RETRIES_GUESS = 5;
+const MAX_RETRIES_GUESS = 3;
 const AXIOS_TIMEOUT = 1000;
 
 // Constants for supported Energy devices
@@ -254,7 +254,7 @@ export class TapoClient {
             try {
 
                 // Set PASSTHROGH and get the components
-                console.debug("Set protocol to PASSTHROUGH");
+                if (this._debug) console.debug("Set protocol to PASSTHROUGH");
                 this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                 const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
 
@@ -266,7 +266,7 @@ export class TapoClient {
                 try {
 
                     // Set PASSTHROGH and get the components
-                    console.debug("Set protocol to PASSTHROUGH - Keep alive forced to false");
+                    if (this._debug) console.debug("Set protocol to PASSTHROUGH - Keep alive forced to false");
                     this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                     const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
     
@@ -285,7 +285,7 @@ export class TapoClient {
             try {
 
                 // Set KLAP and get the components
-                console.debug("Set protocol to KLAP");
+                if (this._debug) console.debug("Set protocol to KLAP");
                 this._protocol = new KlapProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                 const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
 
@@ -297,7 +297,7 @@ export class TapoClient {
                 try {
 
                     // Set KLAP and get the components
-                    console.debug("Set protocol to KLAP - Keep alive forced to false");
+                    if (this._debug) console.debug("Set protocol to KLAP - Keep alive forced to false");
                     this._protocol = new KlapProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                     const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
     
@@ -317,7 +317,7 @@ export class TapoClient {
             try {
 
                 // Set Passthrough and get the components
-                console.debug("Trying first with PassthroughProtocol");
+                if (this._debug) console.debug("Trying first with PassthroughProtocol");
                 this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                 const resp: Components = await this.get_component_negotiation(TapoProtocolType.PASSTHROUGH, MAX_RETRIES_GUESS)
 
@@ -329,7 +329,7 @@ export class TapoClient {
                 try {
 
                     // Set Passthrough without keep_alive and get the components
-                    console.debug("Trying again with PassthroughProtocol - Keep alive forced to false");
+                    if (this._debug) console.debug("Trying again with PassthroughProtocol - Keep alive forced to false");
                     this._protocol = new PassthroughProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                     const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
 
@@ -341,7 +341,7 @@ export class TapoClient {
                     try {
 
                         // Set KLAP and get the components
-                        console.debug("Default protocol not working. Fallback to KLAP");
+                        if (this._debug) console.debug("Default protocol not working. Fallback to KLAP");
                         this._protocol = new KlapProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                         const resp_klap: Components = await this.get_component_negotiation(TapoProtocolType.KLAP, MAX_RETRIES_GUESS);
 
@@ -353,7 +353,7 @@ export class TapoClient {
                         try {
 
                             // Set KLAP and get the components
-                            console.debug("Default protocol not working. Fallback to KLAP - Keep alive forced to false");
+                            if (this._debug) console.debug("Default protocol not working. Fallback to KLAP - Keep alive forced to false");
                             this._protocol = new KlapProtocol(this._auth_credential, this._url, this._terminal_random, this._keep_alive, this._debug);
                             const resp: Components = await this.get_component_negotiation(proto, MAX_RETRIES_GUESS);
             
@@ -933,6 +933,7 @@ export class KlapProtocol extends TapoProtocol {
     public _protocol_type: TapoProtocolType;
     public _terminal_random: boolean;
     public _keep_alive: boolean;
+    public _debug: boolean;
 
      // Constructor to initialize the class
     constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean) {
@@ -948,6 +949,7 @@ export class KlapProtocol extends TapoProtocol {
         this._terminal_random = ((typeof(terminal_random) == 'undefined') ? false : terminal_random);
         this._request_id_generator = new SnowflakeId(1, 1);
         this._keep_alive = ((typeof(keep_alive) == 'undefined') ? true : keep_alive);
+        this._debug = (typeof(debug) == 'undefined' ? false : debug);
         try {
             this._http_agent = (new URL(url).protocol == 'https:' ? new https.Agent({ keepAlive: true, timeout: AXIOS_TIMEOUT }) : new http.Agent({ keepAlive: true, timeout: AXIOS_TIMEOUT }));
             this._http_session = axios.create({timeout: AXIOS_TIMEOUT, httpAgent: this._http_agent, validateStatus: () => {return true}, proxy: false});
@@ -956,7 +958,7 @@ export class KlapProtocol extends TapoProtocol {
         }
 
         // Set the properties to false to avoid any change or access once created
-        if (!debug) {
+        if (!this._debug) {
             Object.defineProperty(this, '_auth_credential', {enumerable: false});
             Object.defineProperty(this, '_http_session', {enumerable: false});
             Object.defineProperty(this, '_http_agent', {enumerable: false});
@@ -965,6 +967,7 @@ export class KlapProtocol extends TapoProtocol {
             Object.defineProperty(this, 'local_auth_hash', {enumerable: false});
             Object.defineProperty(this, '_local_seed', {enumerable: false});
             Object.defineProperty(this, '_keep_alive', {enumerable: false});
+            Object.defineProperty(this, '_debug', {enumerable: false});
         }
     }
  
@@ -1023,13 +1026,13 @@ export class KlapProtocol extends TapoProtocol {
    
     // Private method Handshake to perform the full Handshake and get a valid KlapSession
     public async perform_handshake(new_local_seed?: Buffer): Promise<KlapSession> {
-        console.debug("[KLAP] Starting handshake with " + this._host);
+        if (this._debug) console.debug("[KLAP] Starting handshake with " + this._host);
         const seeds: KlapSession = await this.perform_handshake1((typeof(new_local_seed) == 'undefined' ? undefined : new_local_seed))
             .then (async (value: [Buffer, Buffer]) => {
                 const [remote_seed, auth_hash]: [Buffer, Buffer] = value;
                 const session: KlapSession = await this.perform_handshake2(this._local_seed, remote_seed, auth_hash)
                     .then((value: KlapSession) => {
-                        console.debug("[KLAP] Handshake with " + this._host + " complete");
+                        if (this._debug) console.debug("[KLAP] Handshake with " + this._host + " complete");
                         return value;
                     });
                 return session;
@@ -1066,25 +1069,25 @@ export class KlapProtocol extends TapoProtocol {
                     const server_hash: Buffer = value[1].subarray(16); 
 
                     // Information for debugging
-                    console.debug("Handshake1 posted " + new Date().getTime() + ". Host is " + this._host + ", Session cookie is " + this._session.session_id + ", Response status is " + value[0].status + ", Request was " + this.local_auth_hash.toString('hex'));
-                    console.debug("Server remote_seed is " + remote_seed.toString('hex') + ", server hash is " + server_hash.toString('hex'));
+                    if (this._debug) console.debug("Handshake1 posted " + new Date().getTime() + ". Host is " + this._host + ", Session cookie is " + this._session.session_id + ", Response status is " + value[0].status + ", Request was " + this.local_auth_hash.toString('hex'));
+                    if (this._debug) console.debug("Server remote_seed is " + remote_seed.toString('hex') + ", server hash is " + server_hash.toString('hex'));
 
                     // Build the local seed auth hash
                     const local_seed_auth_hash: Buffer = this._sha256(Buffer.from(new Uint8Array([...this._local_seed, ...remote_seed, ...this.local_auth_hash])));
 
                     // Check the locally generated hash with the server one
                     if (Buffer.compare(local_seed_auth_hash, server_hash) == 0) {
-                        console.debug("Handshake1 hashes matched")
+                        if (this._debug) console.debug("Handshake1 hashes matched")
                         return [remote_seed, this.local_auth_hash];
                     } else {
 
                         // Check blank auth 
-                        console.debug("Expected " + local_seed_auth_hash.toString('hex') + " got " + server_hash.toString('hex') + " in handshake1. Checking if blank auth is a match");
+                        if (this._debug) console.debug("Expected " + local_seed_auth_hash.toString('hex') + " got " + server_hash.toString('hex') + " in handshake1. Checking if blank auth is a match");
                         const blank_auth: AuthCredential = new AuthCredential();
                         const blank_auth_hash: Buffer = this.generate_auth_hash(blank_auth);
                         const blank_seed_auth_hash: Buffer = this._sha256(Buffer.from(new Uint8Array([...this._local_seed, ...remote_seed, ...blank_auth_hash])));
                         if (Buffer.compare(blank_seed_auth_hash, server_hash) == 0) {
-                            console.debug("Server response doesn't match our expected hash on ip " + this._host + " but an authentication with blank credentials matched");
+                            if (this._debug) console.debug("Server response doesn't match our expected hash on ip " + this._host + " but an authentication with blank credentials matched");
                             return [remote_seed, blank_auth_hash];
                         } else {
 
@@ -1094,11 +1097,11 @@ export class KlapProtocol extends TapoProtocol {
                             const kasa_setup_seed_auth_hash: Buffer = this._sha256(Buffer.from(new Uint8Array([...this._local_seed, ...remote_seed, ...kasa_setup_auth_hash])));
                             if (Buffer.compare(kasa_setup_seed_auth_hash, server_hash) == 0) {
                                 this.local_auth_hash = kasa_setup_auth_hash;
-                                console.debug("Server response doesn't match our expected hash on ip " + this._host + " but an authentication with kasa setup credentials matched");
+                                if (this._debug) console.debug("Server response doesn't match our expected hash on ip " + this._host + " but an authentication with kasa setup credentials matched");
                                 return [remote_seed, kasa_setup_auth_hash];
                             } else {
                                 this._session = null;
-                                console.debug("Server response doesn't match our challenge on ip " + this._host);
+                                if (this._debug) console.debug("Server response doesn't match our challenge on ip " + this._host);
                                 throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH1_bSP_HSK_MISSMATCH]] + "Server response doesn't match our challenge on ip " + this._host, null, ErrorCode.ERROR_aPH1_bSP_HSK_MISSMATCH, this.perform_handshake1.name)
                             }
                         }
@@ -1122,7 +1125,7 @@ export class KlapProtocol extends TapoProtocol {
        // Send the request and check if server answers with HTTP 200
         const response: KlapSession = await this.session_post(url, payload, this._session.get_cookies()[1])
             .then((value: [AxiosResponse, Buffer]): KlapSession => {
-                console.debug("Handshake2 posted " + new Date().getTime() + ". Host is " + this._host + ", Response status is " + value[0].status + ", Request was " + payload.toString());
+                if (this._debug) console.debug("Handshake2 posted " + new Date().getTime() + ". Host is " + this._host + ", Response status is " + value[0].status + ", Request was " + payload.toString());
                 if (value[0].status != 200) {
                     this.close(false);
                     throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH2_bSP_HSK_REJ]] + "Device responded with " + value[0].status + " to handshake2", null, ErrorCode.ERROR_aPH2_bSP_HSK_REJ, this.perform_handshake2.name)
@@ -1183,7 +1186,7 @@ export class KlapProtocol extends TapoProtocol {
             
                 // Check handled errors
                 if (value[0].status != 200) {
-                    console.debug('Query failed after successful authentication at ' + new Date().getTime() + '. Host is ' + this._host + '. Available attempts count is ' + retry + '. Sequence is ' + seq + '. Response status is ' + value[0].status + '. Request was ' + raw_request);
+                    if (this._debug) console.debug('Query failed after successful authentication at ' + new Date().getTime() + '. Host is ' + this._host + '. Available attempts count is ' + retry + '. Sequence is ' + seq + '. Response status is ' + value[0].status + '. Request was ' + raw_request);
                     if (value[0].status == 403) {
                         this.close(false);
                         throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_DEV_FORBID]] + "Forbidden error after completing handshake", null, ErrorCode.ERROR_aSR_DEV_FORBID, this._send_request.name)
@@ -1365,6 +1368,7 @@ export class PassthroughProtocol extends TapoProtocol {
     public _protocol_type: TapoProtocolType;
     public _terminal_random: boolean;
     public _keep_alive: boolean;
+    public _debug: boolean;
 
      // Constructor to initialize the class
     constructor(auth_credential: AuthCredential, url: string, terminal_random?: boolean, keep_alive?: boolean, debug?: boolean) {
@@ -1378,6 +1382,7 @@ export class PassthroughProtocol extends TapoProtocol {
         this._protocol_type = TapoProtocolType.PASSTHROUGH;
         this._terminal_random = ((typeof(terminal_random) == 'undefined') ? false : terminal_random);
         this._keep_alive = ((typeof(keep_alive) == 'undefined') ? true : keep_alive);
+        this._debug = (typeof(debug) == 'undefined' ? false : debug);
         try {
             this._http_agent = (new URL(this._base_url).protocol == 'https:' ? new https.Agent({ keepAlive: this._keep_alive, timeout: AXIOS_TIMEOUT }) : new http.Agent({ keepAlive: this._keep_alive, timeout: AXIOS_TIMEOUT }));
             this._http_session = axios.create({timeout: AXIOS_TIMEOUT, httpAgent: this._http_agent, validateStatus: () => {return true}, proxy: false});
@@ -1386,7 +1391,7 @@ export class PassthroughProtocol extends TapoProtocol {
         }
 
         // Set the properties to false to avoid any change or access once created
-        if (!debug) {
+        if (!this._debug) {
             Object.defineProperty(this, '_auth_credential', {enumerable: false});
             Object.defineProperty(this, '_http_session', {enumerable: false});
             Object.defineProperty(this, '_http_agent', {enumerable: false});
@@ -1394,6 +1399,7 @@ export class PassthroughProtocol extends TapoProtocol {
             Object.defineProperty(this, '_jar', {enumerable: false});
             Object.defineProperty(this, '_request_id_generator', {enumerable: false});
             Object.defineProperty(this, '_keep_alive', {enumerable: false});
+            Object.defineProperty(this, '_debug', {enumerable: false});
         }
     }
 
@@ -1460,8 +1466,8 @@ export class PassthroughProtocol extends TapoProtocol {
     public async perform_handshake(url?: string): Promise<Session> {
               
         // Print debug messages
-        console.debug("Will perform handshaking...");
-        console.debug("Generating keypair");
+        if (this._debug) console.debug("Will perform handshaking...");
+        if (this._debug) console.debug("Generating keypair");
 
         // Prepare parameters
         const req_url: string = (typeof(url) == 'undefined' ? this._base_url : url);
@@ -1470,30 +1476,30 @@ export class PassthroughProtocol extends TapoProtocol {
         // Get the key pair and handshake parameters
         const key_pair: KeyPairKeyObjectResult = await this.create_key_pair();
         const handshake_params: HandshakeParams = new HandshakeParams(key_pair.publicKey);
-        console.debug("Handshake params: " + JSON.stringify(handshake_params));
+        if (this._debug) console.debug("Handshake params: " + JSON.stringify(handshake_params));
 
         // Create the Tapo request
         const request: TapoRequest = new TapoRequest().handshake(handshake_params);
-        console.debug("Request " + JSON.stringify(request));
+        if (this._debug) console.debug("Request " + JSON.stringify(request));
 
         // Get the response from the device
         const response: Session = await this.session_post(req_url, request)
             .then((value: AxiosResponse): Session => {
-                console.debug("Handshake posted " + new Date().getTime() + ". Host is " + this._host + ", Response status is " + value.status + ", Request was " + JSON.stringify(request));
+                if (this._debug) console.debug("Handshake posted " + new Date().getTime() + ". Host is " + this._host + ", Response status is " + value.status + ", Request was " + JSON.stringify(request));
                 if (value.status != 200) {
                     this.close(false);
                     throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH_bSP_HSK_REJ]] + "Device responded with " + value.status + " to handshake", null, ErrorCode.ERROR_aPH_bSP_HSK_REJ, this.perform_handshake.name);
                 } else {
                     
                     // Read the Session ID and timeout and create a session - still invalid
-                    console.debug("Handshake got cookies: ..." + JSON.stringify(this._jar));
+                    if (this._debug) console.debug("Handshake got cookies: ..." + JSON.stringify(this._jar));
                     const session_id: string = this._jar[TP_SESSION_COOKIE_NAME];
                     const timeout: number = parseInt(this._jar["TIMEOUT"],10);
                     const terminal_uuid = (this._terminal_random ? webcrypto.randomUUID() : uuidv4());
                     session = new Session(session_id, timeout, false, req_url, terminal_uuid, key_pair);
                     
                     // Get the device key and complete the session if everything is ok
-                    console.debug("Decoding handshake key ...");
+                    if (this._debug) console.debug("Decoding handshake key ...");
                     const handshake_key: string = value.data.result.key;
                     try{
                         const chiper: Chiper = new Chiper().create_from_keypair(handshake_key, key_pair);
@@ -1592,18 +1598,18 @@ export class PassthroughProtocol extends TapoProtocol {
         // Prepare request to be sent
         request.with_request_id(await this._request_id_generator.generate_id()).with_request_time_millis(Math.round(new Date().getTime())).with_terminal_uuid(send_session.terminal_uuid);
         const raw_request: string = JSON.stringify(request);
-        console.debug("Raw request " + raw_request);
+        if (this._debug) console.debug("Raw request " + raw_request);
 
         // Encrypt and prepare request for secure passthrough
         const encrypted_request = send_session.chiper.encrypt(raw_request);
         const passthrough_request: TapoRequest = new TapoRequest().secure_passthrough(new SecurePassthroughParams(encrypted_request));
-        console.debug("Request body " + JSON.stringify(passthrough_request));
+        if (this._debug) console.debug("Request body " + JSON.stringify(passthrough_request));
 
         // Prepare url to be used and send request
         const url: string = send_session.url + '?token=' + send_session.token;
         const response: TapoResponse<Json_T> = await this.session_post(url, passthrough_request, send_session.get_cookies()[1])
             .then(async (value: AxiosResponse): Promise<TapoResponse<Json_T>> => {
-                console.debug("Handshake posted " + new Date().getTime() + ". Host is " + this._host + ", Response status is " + value.status + ", Request was " + JSON.stringify(passthrough_request));
+                if (this._debug) console.debug("Handshake posted " + new Date().getTime() + ". Host is " + this._host + ", Response status is " + value.status + ", Request was " + JSON.stringify(passthrough_request));
                 if (value.status != 200) {
                     this.close(false);
                     throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSR_bSP_REJ]] + "Device responded with " + value.status + " to request", null, ErrorCode.ERROR_aSR_bSP_REJ, this.send.name);
