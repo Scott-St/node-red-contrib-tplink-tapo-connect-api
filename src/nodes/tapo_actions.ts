@@ -302,7 +302,7 @@ const nodeInit: NodeInitializer = (RED): void => {
                 };
 
                 // Print config in the log
-                console.log(`config[${REGISTER_TYPE}]:`, config);
+                if (config.verbose) console.log(`config[${REGISTER_TYPE}]:`, config);
 
                 // Prepare result variable to false
                 let ret: TapoResuls = {

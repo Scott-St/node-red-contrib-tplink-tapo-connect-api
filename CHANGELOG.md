@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.5.2] - 2024-02-05
+## [0.5.3] - 2024-02-05
   
 Reduction of debug messages to avoid too much `syslog`information. If you have many buttons and/or you want to avoid too much information to appear in the log, please update to this version. 
  
