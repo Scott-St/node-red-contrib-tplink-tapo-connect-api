@@ -1271,7 +1271,7 @@ class PassthroughProtocol extends TapoProtocol {
         })
             .catch((error) => {
             this._http_agent.destroy();
-            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_ERR]] + 'Session_post error - ' + error, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_aSP_bAX_REQ_ERR, this.session_post.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aSP_bAX_REQ_ERR]] + 'Session_post error - ' + error.message, new TapoError().axios_to_tapo(error), ErrorCode.ERROR_aSP_bAX_REQ_ERR, this.session_post.name);
         });
         return response;
     }
@@ -1320,7 +1320,7 @@ class PassthroughProtocol extends TapoProtocol {
                     return session.complete_handshake(chiper);
                 }
                 catch (error) {
-                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH_bSP_HSK_FORBID]] + "Unable to extract device key from handshake - " + error, null, ErrorCode.ERROR_aPH_bSP_HSK_FORBID, this.perform_handshake.name);
+                    throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_aPH_bSP_HSK_FORBID]] + "Unable to extract device key from handshake - " + error.message, null, ErrorCode.ERROR_aPH_bSP_HSK_FORBID, this.perform_handshake.name);
                 }
                 ;
             }
@@ -1328,7 +1328,7 @@ class PassthroughProtocol extends TapoProtocol {
         })
             .catch((error) => {
             this.close(false);
-            throw new Error("Device responded with " + error + " to handshake");
+            throw new Error("Device responded with " + error.message + " to handshake");
         });
         return response;
     }
@@ -1766,7 +1766,7 @@ class TapoDevice {
             }
         }
         catch (error) {
-            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_DEVICE_INFO]] + 'Error on Tapo Device information - ' + error, null, ErrorCode.ERROR_DEVICE_INFO, this.augment_TapoDevice.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.ERROR_DEVICE_INFO]] + 'Error on Tapo Device information - ' + error.message, null, ErrorCode.ERROR_DEVICE_INFO, this.augment_TapoDevice.name);
         }
         // Check if it is a Tapo Device
         if (this.isTapoDevice(deviceInfo.deviceType)) {
@@ -1795,7 +1795,7 @@ class TapoDevice {
             return result;
         }
         catch (error) {
-            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.GENERIC_ERROR]] + 'MAC conversion error - ' + error, null, ErrorCode.GENERIC_ERROR, this.resolve_MAC_to_IP.name);
+            throw new TapoError(ErrorMsg[ErrorCode[ErrorCode.GENERIC_ERROR]] + 'MAC conversion error - ' + error.message, null, ErrorCode.GENERIC_ERROR, this.resolve_MAC_to_IP.name);
         }
     }
     tidy_MAC(mac) {
